@@ -15,7 +15,8 @@ h1{
     font-size: 1.8rem;
     color: #1c1e21;
     margin-bottom: 2rem;
-    text-align: center;     /* 見出しとteフォーム要素の間の余白 */
+    text-align: center;
+    background-color: #00f7ff;    /* 見出しとteフォーム要素の間の余白 */
 }
 
 #win{
