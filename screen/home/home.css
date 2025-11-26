@@ -1,10 +1,15 @@
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f0f2f5;
+    background-color: #f0f2f5; /* 背景を少しグレーに */
+    display: flex;
+    justify-content: center; /* 水平方向中央揃え */
+    align-items: center;     /* 垂直方向中央揃え */
+    height: 100vh;           /* 画面全体の高さを使用 */
 }
 
 #container {
     text-align: center;
+    width: 50%;
 }
 
 #register {
@@ -20,14 +25,6 @@ body {
     font-size: 1.8rem;
     color: #1c1e21;
     margin-bottom: 2rem; 
-}
-
-#title{
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
 }
 
 label {
