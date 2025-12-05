@@ -15,6 +15,7 @@ const diceSelect = document.querySelector('#diceSelect');
 const diceWindow2 = document.querySelector('#diceWindow2');
 const diceWindow3 = document.querySelector('#diceWindow3');
 const diceStart = document.querySelector('#diceStart');
+const statusButton = document.querySelector('#status');
 
 if(btn){
 btn.addEventListener('click', () => {
@@ -116,3 +117,27 @@ if(diceStart){
   }
 )
 };
+
+/* ▼▼▼ 追加：モーダル要素と閉じるボタンを取得 ▼▼▼ */
+const statusModal = document.getElementById('statusModal');
+const closeBtn = document.getElementById('closeModal');
+
+if(statusButton){
+  statusButton.addEventListener('click',function(){
+    statusModal.style.display = "block";
+  })
+};
+
+/* ▼▼▼ 追加：×ボタンを押したらモーダルを隠す ▼▼▼ */
+if(closeBtn){
+    closeBtn.addEventListener('click', function(){
+        statusModal.style.display = "none";
+    });
+}
+
+/* おまけ：モーダルの外側（黒い部分）をクリックしても閉じるようにする */
+window.addEventListener('click', function(event) {
+    if (event.target == statusModal) {
+        statusModal.style.display = "none";
+    }
+});
