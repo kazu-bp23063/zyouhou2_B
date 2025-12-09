@@ -1,6 +1,6 @@
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f0f2f5; 
+     background-color: rgba(88, 248, 187, 0.7); 
     display: flex;
     justify-content: center; 
     align-items: center;     
@@ -12,7 +12,6 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: white;
     border: 1px solid black;
     width: 70%;
     height: 50%;
@@ -25,7 +24,6 @@ body {
     right: 10px;
     width: 30%;
     height: 50px;
-    background-color:#ffffff;
     border-color: #00f7ff;
     border-radius: 6px;
     cursor: pointer;
@@ -34,7 +32,7 @@ body {
 
 #matching{
     background-color:#0370ff;
-    color: white;
+    color: black;
     margin: 10px 20px;
     width: 75%;
     height: 100px;
@@ -58,12 +56,11 @@ body {
 }
 
 #rule:hover,#score:hover,#logout:hover{
-    background-color: #f0f2f5;
-    color: black;
+    background-color: #a0c3f8;
     transform: translateY(-5px);
 }
 
 #matching:hover{
-    background-color: #03e2ff;
-    color: black;
+    background-color: #519bfd;
+    transform: translateY(-5px);
 }

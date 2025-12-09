@@ -112,13 +112,18 @@ if(diceSelect){
 
 if(diceStart){
   diceStart.addEventListener('click',function(){
-    let diceResult = Math.floor(Math.random() * 6 * diceSelect.value) + 1;
-    console.log('サイコロの結果',diceResult);
+    let diceCount = parseInt(diceSelect.value); 
+    let total = 0;
+
+  for (let i = 0; i < diceCount; i++) {
+      total += Math.floor(Math.random() * 6) + 1;
   }
-)
+    console.log('サイコロの結果', total);
+    alert(`user1は${total}マス進みました!!!`);
+  })
 };
 
-/* ▼▼▼ 追加：モーダル要素と閉じるボタンを取得 ▼▼▼ */
+
 const statusModal = document.getElementById('statusModal');
 const closeBtn = document.getElementById('closeModal');
 
@@ -128,16 +133,15 @@ if(statusButton){
   })
 };
 
-/* ▼▼▼ 追加：×ボタンを押したらモーダルを隠す ▼▼▼ */
 if(closeBtn){
     closeBtn.addEventListener('click', function(){
         statusModal.style.display = "none";
     });
 }
 
-/* おまけ：モーダルの外側（黒い部分）をクリックしても閉じるようにする */
 window.addEventListener('click', function(event) {
     if (event.target == statusModal) {
         statusModal.style.display = "none";
     }
 });
+
