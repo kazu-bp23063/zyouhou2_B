@@ -1,13 +1,14 @@
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%); 
+    background: linear-gradient(#89f7fe 0%, #66a6ff 100%); 
     display: flex;
     justify-content: center; 
     align-items: center;     
-    height: 100vh;           
+    height: 100vh;         
 }
 
 #container {
+    background-color: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,9 +27,8 @@ body {
     font-size: 16px;
     top: 100px;
     right: 10px;
-    width: 30%;
+    width: 15%;
     height: 50px;
-    border-color: #000000;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -36,7 +36,6 @@ body {
 
 #matching{
     background-color:#0370ff;
-    color: black;
     margin: 10px 20px;
     width: 75%;
     height: 100px;
@@ -49,7 +48,6 @@ body {
 
 #rule,#score{
     background-color:#ffffff;
-    border-color: #00f7ff;
     margin: 10px 20px;
     width: 50%;
     height: 50px;
@@ -59,13 +57,7 @@ body {
     transition: all 0.3s ease;
 }
 
-#rule:hover,#score:hover,#logout:hover{
-    background-color: #a0c3f8;
-    transform: translateY(-5px);
-}
-
-#matching:hover{
-    background-color: #519bfd;
+#rule:hover,#score:hover,#logout:hover,#matching:hover{
     transform: translateY(-5px);
 }
 

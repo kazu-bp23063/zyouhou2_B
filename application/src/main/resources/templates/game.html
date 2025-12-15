@@ -56,10 +56,10 @@
 </div>
 
 <button id="diceStart">サイコロスタート</button>
-
-<button id="gameEnd">ゲーム終了</button>
-
-<button id="status"><span class="material-symbols-outlined">menu</span></button>
+<a th:href="@{/result}">
+  <button id="gameEnd">ゲーム終了</button>
+</a>
+<button id="status">ステータス確認</button>
 
 <div id="statusModal" class="modal">
     <div class="modal-content">

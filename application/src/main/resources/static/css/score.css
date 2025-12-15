@@ -1,5 +1,6 @@
 body{
-    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+    background: linear-gradient(#89f7fe 0%, #66a6ff 100%);
+    background-attachment: fixed;
 }
 
 .matchingStart{
@@ -8,8 +9,6 @@ body{
     right: 10px;
     width: 30%;
     height: 50px;
-    background-color:#ffffff;
-    border-color: #00f7ff;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -23,10 +22,6 @@ h1{
     background-color: #00f7ff;   
 }
 
-#win{
-    color: red;
-}
-
 
 #scoreboard{
     text-align: center;
@@ -34,18 +29,13 @@ h1{
     border: 2px solid #000000;
     padding: 20px;
     border-radius: 6px;
-    width: 300px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .matchingStart:hover{
-    background-color: #f0f2f5;
-    color: black;
+    transform: translateY(-5px);
 }
 
-.chart-container {
-    width: 600px;
-    margin: 50px auto; 
-}
+
 

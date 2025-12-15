@@ -1,6 +1,7 @@
 body{
     margin: 0;
-    background-color: red;
+    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+    background-attachment: fixed;
     text-align: center;
 }
 
@@ -40,10 +41,9 @@ div{
     width: 60%;
 }
 
-#start{
-    color: white;
-    height: 40px;
-    background-color: #1877f2;
+#home{
+    width: 100px;
+    height: 30px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -51,8 +51,6 @@ div{
     margin-bottom: 30px;
 }
 
-#start:hover{
-    background-color: #07d9f5;
-    color: black;
+#home:hover{
     transform: translateY(-5px);
 }

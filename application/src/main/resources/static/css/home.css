@@ -11,36 +11,21 @@ body {
     width: 50%;
 }
 
-#registerForm { 
+#registerForm, #loginForm{ 
     border: solid,rgba(0,0,0,0.3);
+    background-color: white;
     padding: 2rem 3rem;        
     border-radius: 8px;       
     justify-content: center; 
     align-items: center;          
     margin: auto;
-}
-
-#loginForm{
-    border: solid,rgba(0,0,0,0.3);
-    padding: 2rem 3rem;        
-    border-radius: 8px;       
-    justify-content: center; 
-    align-items: center;          
-    margin: auto;
-}
-
-#account {
-    font-size: 1.8rem;
-    color: #1c1e21;
-    margin-bottom: 2rem; 
 }
 
 label {
     display: block; 
     text-align: left; 
     font-size: 0.9rem;
-    color: #606770;
-    margin-bottom: 0.5rem; 
+    margin-bottom: 0.5rem;
 }
 
 input[type="text"],
@@ -57,8 +42,7 @@ input[type="password"] {
 button[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #1877f2; 
-    color: white;              
+    background-color: #1877f2;              
     border: none;
     border-radius: 6px;
     font-size: 1.1rem;
@@ -66,32 +50,22 @@ button[type="submit"] {
     cursor: pointer; 
     margin-top: 1rem;
     margin-bottom: 1.5rem;
-    transition: background-color 0.3s; 
-}
-
-button[type="submit"]:hover {
-    background-color: #01060c; 
-}
-
-a {
-    color: #1877f2;
-    text-decoration: none; 
-}
-
-a:hover {
-    text-decoration: underline; 
+    transition: all 0.3s ease;
 }
 
 #loginButton,#registerButton{
-    color: #fff;
+    width: 100px;
     margin: 10px;
     background-color: #1877f2;
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-#loginButton:hover,#registerButton:hover{
-    background-color: #01060c; 
+.start:hover,#loginButton:hover,#registerButton:hover{
+    transform: translateY(-5px);
 }
+
+
 

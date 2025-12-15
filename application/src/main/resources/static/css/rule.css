@@ -1,6 +1,6 @@
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f0f2f5; 
+    background: linear-gradient(#89f7fe 0%, #66a6ff 100%);
     display: flex;
     justify-content: center; 
     align-items: center;     
@@ -8,12 +8,12 @@ body {
 }
 
 div{
+    border: 3px,solid,black;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: white;
-    border: 5px solid green;
     width: 70%;
     height: 50%;
     border-radius: 6px;
@@ -25,15 +25,11 @@ div{
     right: 20px;
     width: 30%;
     height: 50px;
-    background-color:#ffffff;
-    border: 5px solid green;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .matchingStart:hover{
-    background-color: #f0f2f5;
-    color: red;
     transform: translateY(-5px);
 }

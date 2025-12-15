@@ -24,6 +24,7 @@ showLoginButton.addEventListener('click',(e) =>{
   e.preventDefault();
   loginForm.style.display = 'block';
   registerForm.style.display = 'none';
+  alert('ログイン画面に移動しました!!');
    if(error1 || error2){
     error1.style.display = 'none';
     error2.style.display = 'none';
@@ -35,6 +36,7 @@ showRegisterButton.addEventListener('click',function(e){
   e.preventDefault();
   loginForm.style.display = 'none';
   registerForm.style.display = 'block';
+  alert('アカウント登録画面に移動しました!!');
    if(error1 || error2){
     error1.style.display = 'none';
     error2.style.display = 'none';

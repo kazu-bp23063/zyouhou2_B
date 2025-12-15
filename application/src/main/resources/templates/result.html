@@ -6,7 +6,6 @@
     <title>リザルト画面</title>
     <link rel="stylesheet" href="css/result.css">
     <script src="js/screenmove.js" defer></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=home" />
 </head>
 <body>
     <h1>リザルト画面</h1>
@@ -40,10 +39,9 @@
             <td>70</td>
         </tr>
      </table>
-
-     <button id="start"><span class="material-symbols-outlined">
-home
-</span></button>
+    <a th:href="@{/}">
+        <button id="home">ホームに戻る</button>
+    </a>
 
     </div>
 

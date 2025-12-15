@@ -1,4 +1,4 @@
-package com.example.application;
+package com.example.application.Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,6 +40,11 @@ public class ClientController {
     @GetMapping("/rule")
     public String rule() {
         return "rule";
+    }
+
+    @GetMapping("/result")
+    public String result() {
+        return "result";
     }
 
     

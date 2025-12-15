@@ -9,7 +9,7 @@
 <body>
     <div id="container">
         <div id="registerForm" style="display: block;">
-            <h1 id="account">アカウント登録画面</h1>
+            <h1>アカウント登録画面</h1>
             <p th:if="${error}" th:text="${error}" id="error-msg1" style="color: red; font-size: 20px;"></p>
             <form action="/register-process" method="post">
             <label for="username">ユーザ名</label><br>
@@ -18,7 +18,7 @@
             <label for="password">パスワード</label><br>
             <input type="password" name="password" id="password" placeholder="パスワード"><br>
 
-            <button type="submit" id="start">アカウント登録</button><br>
+            <button type="submit" class="start">アカウント登録</button><br>
 
             既にアカウントお持ちの方は<button id="loginButton">ログインへ</button>
             </form>
@@ -34,7 +34,7 @@
             <label for="password">パスワード</label><br>
             <input type="password" name="password" class="password" placeholder="パスワード"><br>
         
-           <button type="submit" id="start">ログイン</button><br>
+           <button type="submit" class="start">ログイン</button><br>
             
             アカウントお持ちでない方は<button id="registerButton">新規登録へ</button>
             </form>
