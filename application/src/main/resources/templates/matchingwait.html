@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>マッチング待機中</title>
+    <link rel="stylesheet" href="css/matchingwait.css">
+    <script src="js/matching_simulation.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>マッチング中...</h1>
+        <p class="status-text"><span id="current-count">1</span> / 4 人 待機中</p>
+
+        <div class="player-list">
+            <div class="player-slot connected" id="p1">
+                <div class="icon">YOU</div>
+                <div class="name">あなた</div>
+            </div>
+            <div class="player-slot" id="p2">
+                <div class="icon">?</div>
+                <div class="name">待機中...</div>
+            </div>
+            <div class="player-slot" id="p3">
+                <div class="icon">?</div>
+                <div class="name">待機中...</div>
+            </div>
+            <div class="player-slot" id="p4">
+                <div class="icon">?</div>
+                <div class="name">待機中...</div>
+            </div>
+        </div>
+
+        <a href="/start" class="cancel-btn">キャンセル</a>
+    </div>
+</body>
+</html>

@@ -13,9 +13,7 @@
 
     <div id="container">
     <h1><span th:text="${session.loginName}"></span>さんがログイン中</h1>
-      <a th:href="@{/game}">
-        <button id="matching">マッチング開始</button>
-     </a>
+      <button id="matching" type="button">マッチング開始</button>
 
      <a th:href="@{/rule}">
         <button id="rule">ルール</button>

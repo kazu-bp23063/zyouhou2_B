@@ -64,7 +64,7 @@ if(matchingStart.length>0){
 
 if(gameStart){
   gameStart.addEventListener('click',function(){
-    window.location.href = "game.html" 
+    window.location.href = "/matchingwait" 
   })
 };
 
