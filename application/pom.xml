@@ -30,11 +30,27 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
-	 <dependency>
+
+		<!-- jsonライブラリ -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.13.1</version>
+		</dependency>
+		<!-- lombok -->
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.42</version>
+			<scope>provided</scope>
 		</dependency>
+		<!-- WebSocket -->
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-container-grizzly-server</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
