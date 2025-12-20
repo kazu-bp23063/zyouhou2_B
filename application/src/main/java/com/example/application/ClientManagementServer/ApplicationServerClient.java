@@ -14,18 +14,22 @@ import jakarta.websocket.WebSocketContainer;
 @ClientEndpoint
 public class ApplicationServerClient {
     private Session session;
-    private WebSocketContainer container;
-    private URI uri;
+    private final WebSocketContainer container;
+    private final URI uri;
     private static final String APP_SERVER_URI = "ws://localhost:8025/app/application";
-    private MatchingManagement management;
+    private final MatchingManagement management;
 
     public ApplicationServerClient(MatchingManagement management) {
         this.management = management;
-        container = ContainerProvider.getWebSocketContainer();
-        uri = URI.create(APP_SERVER_URI);
+        this.container = ContainerProvider.getWebSocketContainer();
+        this.uri = URI.create(APP_SERVER_URI);
     }
 
-    private void connect() {
+    /* 未接続、または切断済みなら再接続する */
+    private synchronized void ensureConnected() {
+        if (session != null && session.isOpen()) {
+            return;
+        }
         System.out.println("[AppClient] connect(): " + uri);
         try {
             session = container.connectToServer(this, uri);
@@ -37,7 +41,7 @@ public class ApplicationServerClient {
 
     public void sendMessage(String msg) {
         System.out.println("[AppClient] sendMessage: " + msg);
-        connect();
+        ensureConnected();
         session.getAsyncRemote().sendText(msg);
     }
 
@@ -55,6 +59,7 @@ public class ApplicationServerClient {
     @OnError
     public void onError(Throwable t) {
         System.out.println("[client] onError");
+        t.printStackTrace();
     }
 
     @OnClose
