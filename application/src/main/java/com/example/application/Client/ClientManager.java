@@ -104,7 +104,7 @@ public String logout(HttpSession session) {
         repository.save(newAccount); 
 
         return "redirect:/"; 
-    }
+    }//追加しました（高村）
     @GetMapping("/matchingWait")
     public String matchingWait() {
         return "matchingWait";
