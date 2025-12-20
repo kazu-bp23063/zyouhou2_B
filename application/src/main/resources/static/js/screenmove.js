@@ -44,6 +44,13 @@ if(logout){
   });
 }
 
+if(gameStart){
+  gameStart.addEventListener('click',function(){
+    window.location.href = "/matchingwait" 
+  })
+};
+
+
 
 
 if(logout){

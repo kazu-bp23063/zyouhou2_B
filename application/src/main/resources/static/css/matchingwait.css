@@ -1,0 +1,110 @@
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    /* 以前のCSSに合わせた背景色 */
+    background: linear-gradient(#89f7fe 0%, #66a6ff 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    color: #333;
+}
+
+.container {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 80%;
+    max-width: 800px;
+}
+
+h1 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.status-text {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+/* 4つの枠を横並びにする */
+.player-list {
+    display: flex;
+    justify-content: center; /* 中央寄せ */
+    gap: 20px; /* 枠ごとの間隔 */
+    margin-bottom: 40px;
+    flex-wrap: wrap; /* 画面が狭いときは折り返す */
+}
+
+/* プレイヤー1人分の枠 */
+.player-slot {
+    width: 120px;
+    height: 150px;
+    background-color: #eee;
+    border: 3px dashed #bbb; /* 待機中は点線 */
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+}
+
+/* 待機中のアニメーション（ふわふわさせる） */
+.player-slot:not(.connected) {
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 0.5; transform: scale(0.98); }
+    to { opacity: 0.8; transform: scale(1.0); }
+}
+
+.icon {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #888;
+}
+
+.name {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* ▼ つながった時のスタイル ▼ */
+.player-slot.connected {
+    background-color: #fff;
+    border: 3px solid #3498db; /* 実線に変更 */
+    opacity: 1; /* はっきり表示 */
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    animation: none; /* アニメーション停止 */
+}
+
+.player-slot.connected .icon {
+    color: #3498db; /* 青色アイコン */
+}
+
+.player-slot.connected .name {
+    color: #333;
+    font-weight: bold;
+}
+
+/* キャンセルボタン */
+.cancel-btn {
+    display: inline-block;
+    padding: 10px 30px;
+    background-color: #e74c3c;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.cancel-btn:hover {
+    background-color: #c0392b;
+}

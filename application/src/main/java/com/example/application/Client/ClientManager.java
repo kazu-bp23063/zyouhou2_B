@@ -12,13 +12,14 @@ import jakarta.servlet.http.HttpSession;
 
 
 @Controller
-public class ClientController {
+public class ClientManager {
 
     @Autowired
     private AccountRepository repository;
 
     @GetMapping("/")
     public String home() {
+        
         return "home";
     }
 
@@ -104,7 +105,11 @@ public String logout(HttpSession session) {
         
         repository.save(newAccount); 
 
-        return "start"; 
+        return "redirect:/"; 
+    }
+    @GetMapping("/matchingwait")
+    public String matchingwait() {
+        return "matchingwait";
     }
 
 
