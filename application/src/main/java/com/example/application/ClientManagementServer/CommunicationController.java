@@ -19,7 +19,7 @@ import jakarta.websocket.server.ServerEndpoint;
 @ServerEndpoint("/client-management")
 public class CommunicationController {
     private static Set<Session> establishedSessions = Collections.synchronizedSet(new HashSet<Session>());
-    ClientManagementController controller = new ClientManagementController();
+    private static final ClientManagementController controller = new ClientManagementController();
 
     static Gson gson = new Gson();
 
@@ -27,36 +27,33 @@ public class CommunicationController {
     @OnOpen
     public void OnOpen(Session session, EndpointConfig ec) {
         establishedSessions.add(session);
-        System.out.println("[WebSocketClientManagementServer] onOpen:" + session.getId());
+        System.out.println("[ClientManagementEndpoint] onOpen:" + session.getId());
     }
 
     /* 受信したメッセージをコントローラに渡して処理して返信を送信 */
     @OnMessage
     public void onMessage(final String json, final Session session) throws IOException {
-        System.out.println("Received JSON: " + json);
-        /* JSONをメッセージクラスに戻し処理 */
-        String replyMessage = controller.processClientMessage(json);
-        System.out.println("Reply JSON: " + replyMessage);
-        /* 処理された返答メッセージを送信 */
-        sendMessage(session, replyMessage);
+        System.out.println("[ClientManagementEndpoint] onMessage: " + json);
+        controller.processClientMessage(json, session);
     }
 
     /* セッションが閉じたらリストから削除 */
     @OnClose
     public void onClose(Session session) {
-        System.out.println("[WebSocketServerSample] onClose:" + session.getId());
+        System.out.println("[ClientManagementEndpoint] onClose:" + session.getId());
         establishedSessions.remove(session);
     }
 
     /* エラー発生時のログ出力 */
     @OnError
     public void onError(Session session, Throwable error) {
-        System.out.println("[WebSocketServerSample] onError:" + session.getId());
+        System.out.println("[ClientManagementEndpoint] onError:" + session.getId());
+        error.printStackTrace();
     }
 
     /* 指定したセッションにメッセージを送信 */
     public void sendMessage(Session session, String message) {
-        System.out.println("[WebSocketServerSample] sendMessage(): " + message);
+        System.out.println("[ClientManagementEndpoint] sendMessage(): " + message);
         try {
             session.getBasicRemote().sendText(message);
         } catch (IOException e) {
