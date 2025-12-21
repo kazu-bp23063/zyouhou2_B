@@ -1,5 +1,4 @@
 package com.example.application.Client;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +11,6 @@ import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Random;
 
 @Getter
 @AllArgsConstructor
@@ -59,7 +57,13 @@ public class ClientCommunicater implements Runnable{
     @OnMessage
     public void receiveData(String data){
         //受け取ったJsonの情報をclienttoClientManagementMessageクラスのフィールドにセット(林)
-        ClienttoClientManagementMessage receiveData = gson.fromJson(data,ClienttoClientManagementMessage.class);  
+        try{
+            ClienttoClientManagementMessage msg = gson.fromJson(data, ClienttoClientManagementMessage.class);
+            this.task=msg.getTask();
+            System.out.println("Received message: " + data);
+        } catch(Exception e){
+            System.out.println("メッセージの受信に失敗しました。");
+        } 
     }
 
     public void sendData(String data){
