@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import com.example.application.ClientManagementServer.Message.ApplicationMessage;
 import com.example.application.ClientManagementServer.Message.AppRoomCreatedMessage;
-import com.example.application.ClientManagementServer.Message.MatchFoundEvent;
+import com.example.application.ClientManagementServer.Message.ApplicationToClientManagementMessage;
 import com.example.application.ClientManagementServer.Message.ApplicationMessage.PlayerInfo;
 import com.google.gson.Gson;
 
@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 
 public class MatchingManagement {
     /** プレイヤー待ち行列 */
-    private Deque<PlayerEntry> queue = new ArrayDeque<>();
+    private Deque<PlayerEntry> matchingWaitList = new ArrayDeque<>();
 
     /**
      * matchId -> その matchId に紐づくプレイヤーグループ
@@ -32,20 +32,21 @@ public class MatchingManagement {
     Gson gson = new Gson();
 
     /* 待ち行列に追加 */
-    public void joinQueue(Session session, String userName, String userId) {
-        queue.addLast(new PlayerEntry(userName, userId, session));
-        System.out.println("[Matching] Player " + userName + " joined the queue. Queue size: " + queue.size());
+    public void addUserToWaitList(Session session, String userName, String userId) {
+        matchingWaitList.addLast(new PlayerEntry(userName, userId, session));
+        System.out.println("[Matching] Player " + userName + " joined the matchingWaitList. matchingWaitList size: "
+                + matchingWaitList.size());
 
         /* 規定人数以上になったらグループ化して ApplicationServer に通知 */
-        if (queue.size() >= 4) {
+        if (matchingWaitList.size() >= 4) {
             // matchedPlayers は「今回マッチしたプレイヤー一覧」
             List<PlayerEntry> matchedPlayers = new ArrayList<>(4);
 
             /* 先頭から必要人数分取り出す */
             for (int i = 0; i < 4; i++)
-                matchedPlayers.add(queue.removeFirst());
+                matchedPlayers.add(matchingWaitList.removeFirst());
 
-            sendGroupToApplicationServer(matchedPlayers);
+            sendPlayerIds(matchedPlayers);
         }
     }
 
@@ -53,7 +54,7 @@ public class MatchingManagement {
      * ApplicationServer に「ルーム作成依頼」を送る
      * 送信前に roomCreationWaitMap に (matchId -> group) を登録して、応答時に対応付けられるようにする
      */
-    private void sendGroupToApplicationServer(List<PlayerEntry> group) {
+    private void sendPlayerIds(List<PlayerEntry> group) {
         /* ApplicationServer と照合するためのマッチID */
         String matchId = "match-" + UUID.randomUUID();
 
@@ -81,7 +82,8 @@ public class MatchingManagement {
         // 待機中グループを取り出して削除
         List<PlayerEntry> group = roomCreationWaitMap.remove(msg.getMatchId());
 
-        MatchFoundEvent event = new MatchFoundEvent(msg.getMatchId(), msg.getRoomId());
+        ApplicationToClientManagementMessage event = new ApplicationToClientManagementMessage(msg.getMatchId(),
+                msg.getRoomId());
         String eventJson = gson.toJson(event);
 
         /* 各プレイヤーへ通知 */
