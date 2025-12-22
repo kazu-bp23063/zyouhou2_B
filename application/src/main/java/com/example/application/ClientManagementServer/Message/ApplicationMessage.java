@@ -10,13 +10,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ApplicationMessage {
     private String taskName;
-    private List<UserInfo> users;
+    private String matchId;
+    private List<PlayerInfo> players;
 
-    /* 内部ユーザー情報クラス */
     @Getter
     @AllArgsConstructor
-    public static class UserInfo {
-        private int userId;
+    public static class PlayerInfo {
+        private String userId;
         private String userName;
     }
 }

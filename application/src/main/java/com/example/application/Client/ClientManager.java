@@ -127,6 +127,8 @@ public String logout(HttpSession session) {
 
         return "redirect:/"; 
     }
+    //追加しました（高村）
+
     @GetMapping("/matchingWait")
     public String matchingWait() {
         return "matchingWait";

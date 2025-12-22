@@ -1,66 +1,105 @@
-// package com.example.application.Client;
-// import java.util.List;
+package com.example.application.Client;
 
-// import lombok.AllArgsConstructor;
-// import lombok.Getter;
-// import com.google.gson.Gson;
-// import jakarta.websocket.ContainerProvider;
-// import jakarta.websocket.Session;
-// import jakarta.websocket.WebSocketContainer;
-// import java.io.IOException;
-// import java.net.URI;
-// import java.util.Random;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import com.google.gson.Gson;
 
-// @Getter
-// @AllArgsConstructor
-// public class ClientCommunicater implements Runnable{
-//     //タスク番号、送られてきた際は初期値の0のまま(林)
-//     private int taskNum=10;
-//     //Json化したタスクで使う情報
-//     private String task;
-//     //接続が確立したときに手に入るオブジェクト、通信パイプの役割(林)
-//     static Session session;
-//     //通信を行うためのコンテナ
-//     static WebSocketContainer container;
-//     //接続先(林)
-//     static String serverEndpoint ="ws://localhost:8080/clientmanager";
-//     static int id=1;
-//     //クラスのフィールドをjsonにするためのインスタンス
-//     static Gson gson =new Gson();
-//     static int sampleIncrement =0;
+import jakarta.websocket.ClientEndpoint;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
+import java.io.IOException;
+import java.net.URI;
 
-//     //接続を確立するメソッド
-//     public boolean establishConnection(){
-//         //通信を行うためのエンジンを取得(林)
-//         container =ContainerProvider.getWebSocketContainer();
-//         try{
-//             //設定したエンドポイントに接続をする
-//             session=container.connectToServer(new WebSocketEndpointSample(),URI.create(serverEndpoint));
-//             return true;
-//         }catch(Exception e){
-//             return False;
-//         }
-//     }
+@Getter
+@AllArgsConstructor
+@ClientEndpoint
+public class ClientCommunicater implements Runnable{
+    //タスク番号、送られてきた際は初期値の0のまま(林)
+    private int taskNum=10;
+    //Json化したタスクで使う情報
+    private String task;
+    //接続が確立したときに手に入るオブジェクト、通信パイプの役割(林)
+    Session session;
+    //通信を行うためのコンテナ
+    static WebSocketContainer container;
+    //接続先(林)
+    static String serverEndpoint ="ws://localhost:8080/clientmanager";
+    static int id=1;
+    //クラスのフィールドをjsonにするためのインスタンス
+    static Gson gson =new Gson();
+    static int sampleIncrement =0;
 
-//     public void closeConnection(){
-//         if(session.isOpen()){
-//             session.close();
-//         }
-//     }
+    //接続を確立するメソッド
+    public boolean establishConnection(){
+        //通信を行うためのエンジンを取得(林)
+        container =ContainerProvider.getWebSocketContainer();
+        try{
+            //設定したエンドポイントに接続をする
+            session=container.connectToServer(this,URI.create(serverEndpoint));
+            return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
 
-//     @ClientEndPoint
-//     public void receiveData(String data){
-//         //受け取ったJsonの情報をclienttoClientManagementMessageクラスのフィールドにセット(林)
-//         ClienttoClientManagementMessage receiveData = gson.fromJson(data,ClienttoClientManagementMessage.class);  
-//     }
+    public void closeConnection(){
+        if(session.isOpen()){
+            try {
+                session.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-//     public void sendData(Session session2 ,String data){
-//         try{
-//             session2.getBasicRemote().sendText(data);
-//         } catch(IOException e){
-//             e.printStackTrace();
-//         }
-//     }
+    @OnMessage
+    public void receiveData(String data){
+        //受け取ったJsonの情報をclienttoClientManagementMessageクラスのフィールドにセット(林)
+        try{
+            ClienttoClientManagementMessage msg = gson.fromJson(data, ClienttoClientManagementMessage.class);
+            this.task=msg.getTask();
+            System.out.println("Received message: " + data);
+        } catch(Exception e){
+            System.out.println("メッセージの受信に失敗しました。");
+        } 
+    }
 
+    public void sendData(String data){
+       if(session != null && session.isOpen()){
+            try {
+                session.getBasicRemote().sendText(data);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+       }else{
+            System.out.println("セッションが確立していません。");
+       }
+    }
 
-// }
+    @Override
+    public void run() {
+        if(!establishConnection()){
+            System.out.println("サーバーへの接続に失敗しました。");
+            return;
+        }
+
+        while(session != null && session.isOpen()){
+            try {
+                //タスク情報を送信
+                ClienttoClientManagementMessage message = new ClienttoClientManagementMessage(null,0,"match",true,0);
+                String jsonMessage = gson.toJson(message);
+                sendData(jsonMessage);
+                // sampleIncrement++;
+                //5秒待機
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+
+    }
+
+}
