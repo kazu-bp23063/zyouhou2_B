@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.example.application.ClientManagementServer.Message.ApplicationMessage;
-import com.example.application.ClientManagementServer.Message.AppRoomCreatedMessage;
 import com.example.application.ClientManagementServer.Message.ApplicationToClientManagementMessage;
 import com.example.application.ClientManagementServer.Message.ApplicationMessage.PlayerInfo;
 import com.google.gson.Gson;
@@ -77,7 +76,7 @@ public class MatchingManagement {
      * matchId から待機中グループを引き当て、各クライアントへ「マッチ成立」を通知する
      */
     public void onRoomCreated(String json) {
-        AppRoomCreatedMessage msg = gson.fromJson(json, AppRoomCreatedMessage.class);
+        ApplicationToClientManagementMessage msg = gson.fromJson(json, ApplicationToClientManagementMessage.class);
 
         // 待機中グループを取り出して削除
         List<PlayerEntry> group = roomCreationWaitMap.remove(msg.getMatchId());
