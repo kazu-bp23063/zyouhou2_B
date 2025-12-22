@@ -2,7 +2,7 @@ package com.example.application.ClientManagementServer;
 
 import com.example.application.Client.ClientToClientManagementMessage;
 import com.example.application.ClientManagementServer.Message.ClientMessage;
-import com.example.application.ClientManagementServer.Message.MatchFoundEvent;
+import com.example.application.ClientManagementServer.Message.ApplicationToClientManagementMessage;
 import com.google.gson.Gson;
 
 import jakarta.websocket.Session;
@@ -29,7 +29,7 @@ public class ClientManagementController {
     }
 
     public void processApplicationMessage(String json, Session session) {
-        MatchFoundEvent msg = gson.fromJson(json, MatchFoundEvent.class);
+        ApplicationToClientManagementMessage msg = gson.fromJson(json, ApplicationToClientManagementMessage.class);
         System.out.println("[ClientManagementController] request: " + msg.getTaskName());
         switch (msg.getTaskName()) {
             case "MATCH_CREATED" -> handleMatchCreated(msg, session);
@@ -59,7 +59,7 @@ public class ClientManagementController {
         matchingManagement.joinQueue(session, msg.getUserName(), msg.getUserId());
     }
 
-    private void handleMatchCreated(MatchFoundEvent msg, Session session) {
+    private void handleMatchCreated(ApplicationToClientManagementMessage msg, Session session) {
         System.out.println("[HandleMatchCreated] Match created with ID: " + msg.getMatchId());
         communicationController.sendMessage(session, gson.toJson(msg));
     }
