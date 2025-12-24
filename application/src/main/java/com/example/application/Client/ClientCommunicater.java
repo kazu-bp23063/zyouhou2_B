@@ -19,7 +19,7 @@ public class ClientCommunicater implements Runnable{
     //タスク番号、送られてきた際は初期値の0のまま(林)
     private int taskNum=10;
     //Json化したタスクで使う情報
-    private String task;
+    private String taskName;
     //接続が確立したときに手に入るオブジェクト、通信パイプの役割(林)
     Session session;
     //通信を行うためのコンテナ
@@ -58,8 +58,8 @@ public class ClientCommunicater implements Runnable{
     public void receiveData(String data){
         //受け取ったJsonの情報をclienttoClientManagementMessageクラスのフィールドにセット(林)
         try{
-            ClienttoClientManagementMessage msg = gson.fromJson(data, ClienttoClientManagementMessage.class);
-            this.task=msg.getTask();
+            ClientToClientManagementMessage msg = gson.fromJson(data, ClientToClientManagementMessage.class);
+            this.taskName=msg.getTaskName();
             System.out.println("Received message: " + data);
         } catch(Exception e){
             System.out.println("メッセージの受信に失敗しました。");
@@ -88,7 +88,7 @@ public class ClientCommunicater implements Runnable{
         while(session != null && session.isOpen()){
             try {
                 //タスク情報を送信
-                ClienttoClientManagementMessage message = new ClienttoClientManagementMessage(null,0,"match",true,0);
+                ClientToClientManagementMessage message = new ClientToClientManagementMessage(null,0,"match",true,0);
                 String jsonMessage = gson.toJson(message);
                 sendData(jsonMessage);
                 // sampleIncrement++;

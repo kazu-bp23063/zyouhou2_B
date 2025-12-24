@@ -4,10 +4,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ClienttoClientManagementMessage {
+public class ClientToClientManagementMessage {
+    private String userId;
     private String userName;
-    private int passWord;
-    private String task;
+    private int password;
+    private String taskName;
     private boolean isMatched;
     private int gameRecord;
 

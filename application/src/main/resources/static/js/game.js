@@ -3,6 +3,7 @@
  */
 let myPlayerId = new URLSearchParams(window.location.search).get('playerId');
 let roomId = new URLSearchParams(window.location.search).get('roomId');
+let myColor = new URLSearchParams(window.location.search).get('color');
 let localPlayerPositions = {};
 
 console.log("取得した自分のID:", myPlayerId);// 前回の位置を記録して、移動を検知する
@@ -62,7 +63,14 @@ function setupPlayersUI(players) {
         if (!document.getElementById(`player-${p.id}`)) {
             const piece = document.createElement('div');
             piece.id = `player-${p.id}`;
-            piece.className = `player-piece p${i}`; // CSSでp0~p3の色を設定
+            piece.className = `player-piece`;
+            
+            // 重要：サーバーから受け取った色を適用
+            piece.style.backgroundColor = p.color; // 背景色の変更
+            piece.style.borderColor = p.color;     // 枠線の変更
+            piece.style.color = "white";           // 文字（名前の1文字目）の色
+            console.log(`DOMに適用した背景色: ${piece.style.backgroundColor}`);
+            
             piece.innerText = p.name.substring(0, 1);
             container.appendChild(piece);
         }

@@ -96,7 +96,6 @@ body {
 
 .player-piece {
     position: absolute; width: 4.5vmin; height: 4.5vmin;
-    background: radial-gradient(circle at 30% 30%, #ff4757, #c0392b); 
     border: 2px solid white; border-radius: 50%;
     z-index: 1000; transition: all 0.3s ease-in-out;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3);

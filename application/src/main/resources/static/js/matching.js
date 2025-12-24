@@ -16,21 +16,35 @@ async function initializeMatching() {
     try {
         const playerName = "Player_" + Math.floor(Math.random() * 100);
         const res = await fetch(`/api/matching/auto-join?playerName=${encodeURIComponent(playerName)}`, { method: 'POST' });
-        const data = await res.json();
+
+        // 一度テキストとして受け取って中身を確認する（デバッグに便利）
+        const text = await res.text();
+        console.log("サーバーからの生データ:", text);
+
+        if (!text || text.trim() === "") {
+            throw new Error("サーバーからのレスポンスが空です。Java側のControllerを確認してください。");
+        }
+
+        // ここで data を宣言（1回だけにします）
+        const data = JSON.parse(text);
+        console.log("パース後のデータ:", data);
 
         const roomId = data.room.roomId;
         const myId = data.me.id;
+        const myColor = data.me.color;
 
-        console.log(`入室成功！ Room: ${roomId}, MyID: ${myId}`);
-        history.replaceState(null, '', `?roomId=${roomId}&playerId=${myId}`);
+        console.log(`入室成功！ Room: ${roomId}, MyID: ${myId}, Color: ${myColor}`);
+        history.replaceState(null, '', `?roomId=${roomId}&playerId=${myId}&color=${encodeURIComponent(myColor)}`);
+        console.log("サーバーから届いた自分のデータ:", data.me); // ここで color が入っているか確認
+        console.log("割り当てられた色:", data.me.color);
 
-        startPolling(roomId, myId);
+        startPolling(roomId, myId, myColor);
     } catch (err) {
         console.error("マッチングエラー:", err);
     }
 }
 
-function startPolling(roomId, myId) {
+function startPolling(roomId, myId, myColor) {
     pollingInterval = setInterval(async () => {
         const res = await fetch(`/api/matching/status?roomId=${roomId}`);
         const room = await res.json();
@@ -42,7 +56,7 @@ function startPolling(roomId, myId) {
             console.log("4人揃いました。遷移します。");
             setTimeout(() => {
                 // ここでIDを渡すのが最重要
-                window.location.href = `/game?roomId=${roomId}&playerId=${myId}`;
+window.location.href = `/game?roomId=${roomId}&playerId=${myId}&color=${encodeURIComponent(myColor)}`;
             }, 2000);
         }
     }, 2000);
