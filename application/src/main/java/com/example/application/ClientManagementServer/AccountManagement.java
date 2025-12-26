@@ -11,56 +11,93 @@ public class AccountManagement {
 
     /**
      * ログイン処理
-     * @return 認証成功かつ二重ログインでない場合に true
+     * @return ログイン成功時にtrue
      */
     public boolean login(String username, String password) {
-        // 1. ユーザー情報の取得
-        User user = dbAccess.getUserByUsername(username);
-        if (user == null) {
-            System.out.println("[AccountManagement] Login failed: User not found -> " + username);
+        if (username == null || password == null) {
+            System.out.println("[AccountManagement] Loggin failed: Input is null");
             return false;
         }
 
-        // 2. パスワード照合
-        if (!user.password().equals(password)) {
-            System.out.println("[AccountManagement] Login failed: Wrong password -> " + username);
+        try {
+            // ユーザー存在確認
+            User user = dbAccess.getUserByUsername(username);
+            if (user == null) {
+                System.out.println("[AccountManagement] Login failed: User not found -> " + username);
+                return false;
+            }
+
+            // パスワード照合
+            if (!user.password().equals(password)) {
+                System.out.println("[AccountManagement] Login failed: Wrong password -> " + username);
+                return false;
+            }
+
+            // 二重ログインチェック
+            if (dbAccess.getLoginStatusByUsername(username)) {
+                System.out.println("[AccountManagement] Login failed: Already logged in -> " + username);
+                return false;
+            }
+
+            // ログイン状態を更新
+            boolean result = dbAccess.setLoginStatus(username, true);
+            if (result) {
+                System.out.println("[AccountManagement] Login success -> " + username);
+            }
+            return result;
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
-
-        // 3. 二重ログインチェック
-        if (dbAccess.getLoginStatusByUsername(username)) {
-            System.out.println("[AccountManagement] Login failed: Already logged in -> " + username);
-            return false;
-        }
-
-        // 4. ログイン状態を「真」に更新
-        return dbAccess.setLoginStatus(username, true);
     }
 
     /**
      * アカウント登録処理
-     * @return 登録成功時に true
+     * @return 登録成功時にtrue
      */
     public boolean registerAccount(String username, String password) {
-        // 1. ユーザー重複チェック
-        if (dbAccess.getUserByUsername(username) != null) {
-            System.out.println("[AccountManagement] Register failed: User already exists -> " + username);
+        if (username == null || password == null) {
             return false;
         }
 
-        // 2. 新規ID（UUID）の発行と保存
-        String newId = UUID.randomUUID().toString();
-        User newUser = dbAccess.createUser(username, password, newId);
-        
-        return newUser != null;
+        try {
+            // ユーザー名の重複チェック
+            if (dbAccess.getUserByUsername(username) != null) {
+                System.out.println("[AccountManagement] Register failed: User already exists -> " + username);
+                return false;
+            }
+            // IDの生成
+            String newId = UUID.randomUUID().toString();
+            // ユーザー作成
+            User newUser = dbAccess.createUser(username, password, newId);
+
+            boolean success = (newUser != null);
+            if (success) {
+                System.out.println("[AccountManagement] Register success -> " + username + " (ID: " + newId + ")");
+            }
+            return success;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
      * ログアウト処理
-     * @return ログアウト成功時に true
+     * @return ログアウト成功時にtrue
      */
     public boolean logout(String username) {
-        System.out.println("[AccountManagement] Logging out user -> " + username);
-        return dbAccess.setLoginStatus(username, false);
+        if (username == null) return false;
+
+        try {
+            System.out.println("[AccountManagement] Logging out user -> " + username);
+            return dbAccess.setLoginStatus(username, false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
