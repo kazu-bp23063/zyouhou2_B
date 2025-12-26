@@ -1,15 +1,14 @@
 package com.example.application.ApplicationServer.Controller;
 
 import org.springframework.stereotype.Service;
-
 import com.example.application.ApplicationServer.Entity.Room;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 @Service
 public class RoomManager {
-    private Map<String, Room> activeRooms = new ConcurrentHashMap<>();
+    // 【重要】staticを追加して、どのインスタンスからも同じデータを見れるようにする
+    private static final Map<String, Room> activeRooms = new ConcurrentHashMap<>();
 
     public Room getRoom(String roomId) {
         return activeRooms.get(roomId);

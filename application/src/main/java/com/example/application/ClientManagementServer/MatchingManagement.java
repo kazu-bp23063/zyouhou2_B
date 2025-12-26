@@ -1,98 +1,86 @@
 package com.example.application.ClientManagementServer;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import com.example.application.ClientManagementServer.Message.ApplicationMessage;
-import com.example.application.ClientManagementServer.Message.ApplicationToClientManagementMessage;
-import com.example.application.ClientManagementServer.Message.ApplicationMessage.PlayerInfo;
+import java.util.*;
+import com.example.application.ApplicationServer.Controller.RoomManager; 
+import com.example.application.ApplicationServer.Entity.Room;
+import com.example.application.ApplicationServer.Entity.Player;
 import com.google.gson.Gson;
-
 import jakarta.websocket.Session;
 import lombok.AllArgsConstructor;
 
 public class MatchingManagement {
-    /** プレイヤー待ち行列 */
-    private Deque<PlayerEntry> matchingWaitList = new ArrayDeque<>();
+    private static Deque<PlayerEntry> matchingWaitList = new ArrayDeque<>();
+    private static final RoomManager roomManager = new RoomManager(); 
+    private final Gson gson = new Gson();
 
-    /**
-     * matchId -> その matchId に紐づくプレイヤーグループ
-     * ApplicationServer にルーム作成依頼を出してから、roomId が返るまでの「待ち状態」を保持する
-     */
-    private Map<String, List<PlayerEntry>> roomCreationWaitMap = new HashMap<>();
+    public synchronized void addUserToWaitList(Session session, String userName, String userId) {
+        if (userName == null || userName.isEmpty()) return;
 
-    private ApplicationServerClient appClient = new ApplicationServerClient(this);
+        // すでにリストにいる場合は追加しない（重複防止）
+        boolean exists = matchingWaitList.stream().anyMatch(p -> p.userId.equals(userId));
+        if (!exists) {
+            matchingWaitList.addLast(new PlayerEntry(userName, userId, session));
+        }
 
-    Gson gson = new Gson();
+        System.out.println("[Matching] Player " + userName + " joined. size: " + matchingWaitList.size());
 
-    /* 待ち行列に追加 */
-    public void addUserToWaitList(Session session, String userName, String userId) {
-        matchingWaitList.addLast(new PlayerEntry(userName, userId, session));
-        System.out.println("[Matching] Player " + userName + " joined the matchingWaitList. matchingWaitList size: "
-                + matchingWaitList.size());
-
-        /* 規定人数以上になったらグループ化して ApplicationServer に通知 */
         if (matchingWaitList.size() >= 4) {
-            // matchedPlayers は「今回マッチしたプレイヤー一覧」
-            List<PlayerEntry> matchedPlayers = new ArrayList<>(4);
-
-            /* 先頭から必要人数分取り出す */
-            for (int i = 0; i < 4; i++)
-                matchedPlayers.add(matchingWaitList.removeFirst());
-
-            sendPlayerIds(matchedPlayers);
+            // 4人揃った場合は、リストから取り出して部屋を作る
+            List<PlayerEntry> group = new ArrayList<>();
+            for (int i = 0; i < 4; i++) group.add(matchingWaitList.removeFirst());
+            createUnifiedRoom(group);
+        } else {
+            // 4人未満の場合は、現在の待機状況を全員に送る
+            broadcastWaitStatus();
         }
     }
 
-    /**
-     * ApplicationServer に「ルーム作成依頼」を送る
-     * 送信前に roomCreationWaitMap に (matchId -> group) を登録して、応答時に対応付けられるようにする
-     */
-    private void sendPlayerIds(List<PlayerEntry> group) {
-        /* ApplicationServer と照合するためのマッチID */
-        String matchId = "match-" + UUID.randomUUID();
-
-        /* ルーム作成待ちの状態を管理するために、マッチIDとグループをマップに保存する */
-        roomCreationWaitMap.put(matchId, group);
-
-        List<PlayerInfo> players = group.stream()
-                .map(p -> new PlayerInfo(p.userId, p.userName))
-                .toList();
-
-        /* ルーム作成要求メッセージをJSON化して送信 */
-        ApplicationMessage msg = new ApplicationMessage("CREATE_ROOM", matchId, players);
-        String json = gson.toJson(msg);
-
-        appClient.sendMessage(json);
+    private void broadcastWaitStatus() {
+        List<String> userNames = matchingWaitList.stream().map(p -> p.userName).toList();
+        Map<String, Object> statusMsg = new HashMap<>();
+        statusMsg.put("taskName", "WAIT_STATUS");
+        statusMsg.put("players", userNames);
+        
+        String json = gson.toJson(statusMsg);
+        for (PlayerEntry entry : matchingWaitList) {
+            sendMessage(entry.session, json);
+        }
     }
 
-    /**
-     * ApplicationServer から roomId が返ってきたタイミングで呼ばれる
-     * matchId から待機中グループを引き当て、各クライアントへ「マッチ成立」を通知する
-     */
-    public void onRoomCreated(String json) {
-        ApplicationToClientManagementMessage msg = gson.fromJson(json, ApplicationToClientManagementMessage.class);
-        // 待機中グループを取り出して削除
-        List<PlayerEntry> group = roomCreationWaitMap.remove(msg.getMatchId());
+    private void createUnifiedRoom(List<PlayerEntry> group) {
+        // RoomManager(static推奨)を通じて部屋作成
+        Room room = roomManager.createRoom();
 
-        ApplicationToClientManagementMessage event = new ApplicationToClientManagementMessage("MATCH_FOUND",
-                msg.getMatchId(),
-                msg.getRoomId());
-        String eventJson = gson.toJson(event);
+        String[] colors = {"#ff4d4d", "#4d94ff", "#4dff88", "#ffdb4d"};
+        for (int i = 0; i < group.size(); i++) {
+            PlayerEntry entry = group.get(i);
+            Player p = new Player(entry.userName, colors[i]);
+            p.setId(entry.userId); 
+            room.addPlayer(p);
+        }
 
-        /* 各プレイヤーへ通知 */
+        // JavaScriptが期待する "roomId" という名前でデータを送る
+        Map<String, Object> response = new HashMap<>();
+        response.put("taskName", "MATCH_FOUND");
+        response.put("roomId", room.getRoomId()); // ここが重要！
+        
+        String json = gson.toJson(response);
         for (PlayerEntry player : group) {
-            System.out.println("[Matching] Notifying player " + player.userName + " of match " + msg.getMatchId());
-            player.session.getAsyncRemote().sendText(eventJson);
+            sendMessage(player.session, json);
+        }
+        System.out.println("[Matching] Match Success! RoomID: " + room.getRoomId());
+    }
+
+    private void sendMessage(Session session, String text) {
+        try {
+            if (session.isOpen()) {
+                session.getBasicRemote().sendText(text);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    /* 待ち行列に入っているプレイヤー1人分の情報 */
     @AllArgsConstructor
     private static class PlayerEntry {
         private String userName;
