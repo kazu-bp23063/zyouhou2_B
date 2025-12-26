@@ -8,7 +8,6 @@ import com.example.application.ApplicationServer.Entity.GameMap;
 import com.example.application.ApplicationServer.Entity.Player;
 import com.example.application.ApplicationServer.Entity.Room;
 import com.example.application.ClientManagementServer.CommunicationController;
-import com.example.application.ApplicationServer.Entity.GameEvent;
 import com.google.gson.Gson;
 
 import jakarta.websocket.Session;
@@ -55,7 +54,7 @@ public class GameManagementController {
         if (!currentPlayer.getId().equals(playerId)) return;
 
         // --- 1. ダイス実行（アイテム効果を反映） ---
-        int rolledNumber;
+        int rolledNumber= diceController.executeRoll(itemType, targetValue);
         if ("DOUBLE".equals(itemType)) {
             rolledNumber = diceController.roll() + diceController.roll();
             System.out.println("[Item] DOUBLE used. Roll: " + rolledNumber);
@@ -65,10 +64,6 @@ public class GameManagementController {
         } else {
             rolledNumber = diceController.roll();
         }
-
-
-        // ダイス実行
-        int rolledNumber = diceController.executeRoll(itemType, targetValue);
 
         // 移動計算
         int oldPos = currentPlayer.getCurrentPosition();
