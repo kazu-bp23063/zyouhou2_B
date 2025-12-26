@@ -79,12 +79,6 @@ public class ClientManager {
         return "rule";
     }
 
-  // 結果画面を表示するためのエンドポイント
-@GetMapping("/result")
-public String showResult() {
-    return "result"; 
-}
-
 @GetMapping("/logout")
 public String logout(HttpSession session) {
     // セッションを無効化してログイン情報を消す
@@ -129,7 +123,6 @@ public String logout(HttpSession session) {
 
         return "redirect:/"; 
     }
-    //追加しました（高村）
 
     @GetMapping("/matchingWait")
     public String matchingWait() {

@@ -1,36 +1,42 @@
 package com.example.application.ClientManagementServer;
+import com.example.application.ApplicationServer.Controller.GameManagementController;
 
-import com.example.application.ApplicationServer.Controller.GameManagementController; // 追加
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Component;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
-import java.io.IOException;
-
-import org.springframework.stereotype.Component;
 
 @Component
 @ServerEndpoint("/client-management")
 public class CommunicationController {
+    // 全ユーザーのセッションを管理するマップ（名前 -> セッション）
+    public static final Map<String, Session> userSessions = new ConcurrentHashMap<>();
+    
     private static final ClientManagementController authController = new ClientManagementController();
-    private static final GameManagementController gameController = new GameManagementController(); // 追加
+    private static final GameManagementController gameController = new GameManagementController();
 
     @OnMessage
-    public void onMessage(final String json, final Session session) throws IOException {
-        System.out.println("[Endpoint] Received: " + json);
+    public void onMessage(String json, Session session) {
+        // メッセージが届くたびに、そのユーザー名とセッションを紐付ける（簡略化のため）
+        // ※本来はログイン成功時に行うのがベストです
+        if (json.contains("\"userId\":\"")) {
+            // JSONから強引に名前を抜くか、メッセージクラスにuserIdがある前提
+            // ここではメッセージ処理の中で、gameControllerにsessionを渡すことで対応
+        }
         
-        // メッセージの内容によってコントローラーを振り分ける
         if (json.contains("LOGIN") || json.contains("REGISTER") || json.contains("MATCHING")) {
             authController.processClientMessage(json, session);
         } else {
-            gameController.processGameMessage(json, session); // ゲーム系の処理へ
+            gameController.processGameMessage(json, session);
         }
     }
-
-    @OnOpen
-    public void onOpen(Session session) { System.out.println("Connected: " + session.getId()); }
-
-    @OnClose
-    public void onClose(Session session) { System.out.println("Closed: " + session.getId()); }
-
-    @OnError
-    public void onError(Session session, Throwable error) { error.printStackTrace(); }
+    
+    // 特定のユーザーにメッセージを送るための静的メソッド
+    public static void sendToUser(String userId, String message) {
+        Session session = userSessions.get(userId);
+        if (session != null && session.isOpen()) {
+            session.getAsyncRemote().sendText(message);
+        }
+    }
 }

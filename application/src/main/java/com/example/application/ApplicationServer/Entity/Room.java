@@ -12,6 +12,7 @@ public class Room {
     private List<Player> players = new ArrayList<>();
     private int turnIndex = 0;
     private final int MAX_PLAYERS = 4;
+    private boolean rankUpdated = false;
 
     public Room() {
         this.roomId = UUID.randomUUID().toString().substring(0, 5).toUpperCase();

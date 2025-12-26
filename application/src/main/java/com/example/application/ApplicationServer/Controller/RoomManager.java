@@ -7,8 +7,7 @@ import java.util.Map;
 
 @Service
 public class RoomManager {
-    // 【重要】staticを追加して、どのインスタンスからも同じデータを見れるようにする
-    private static final Map<String, Room> activeRooms = new ConcurrentHashMap<>();
+    private static Map<String, Room> activeRooms = new ConcurrentHashMap<>();
 
     public Room getRoom(String roomId) {
         return activeRooms.get(roomId);

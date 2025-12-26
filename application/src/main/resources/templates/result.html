@@ -6,7 +6,6 @@
     <title>リザルト画面</title>
     <link rel="stylesheet" th:href="@{/css/result.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="js/screenmove.js" defer></script>
 </head>
 <body>
     <div id="container">
@@ -24,27 +23,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="first-place">
-                        <td><i class="fas fa-crown gold"></i> 1位</td>
-                        <td>ユーザ1</td>
-                        <td>124</td>
-                    </tr>
-                    <tr class="second-place">
-                        <td>2位</td>
-                        <td>ユーザ2</td>
-                        <td>110</td>
-                    </tr>
-                    <tr>
-                        <td>3位</td>
-                        <td>ユーザ3</td>
-                        <td>95</td>
-                    </tr>
-                    <tr>
-                        <td>4位</td>
-                        <td>ユーザ4</td>
-                        <td>70</td>
-                    </tr>
-                </tbody>
+    <tr th:each="player : ${ranking}" 
+        th:classappend="${player.rank == 1} ? 'first-place' : (${player.rank == 2} ? 'second-place' : '')">
+        
+        <td>
+            <i th:if="${player.rank == 1}" class="fas fa-crown gold"></i>
+            <span th:text="${player.rank} + '位'">1位</span>
+        </td>
+        <td th:text="${player.name}">ユーザ名</td>
+        <td th:text="${player.earnedUnits}">0</td>
+    </tr>
+</tbody>
             </table>
         </div>
 
