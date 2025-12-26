@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (data.taskName === "GAME_UPDATE") {
             // ① 出目の表示
             const diceResult = document.querySelector('#dice-result-text span');
+            document.getElementById('event-message').innerText = data.message;
             if (diceResult) diceResult.innerText = data.diceValue;
 
             // ② 駒の移動を実行
