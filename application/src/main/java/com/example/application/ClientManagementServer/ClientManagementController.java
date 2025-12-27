@@ -56,7 +56,7 @@ public class ClientManagementController {
 
     private void handleMatching(ClientToClientManagementMessage msg, Session session) {
         System.out.println("[HandleMatching] User " + msg.getUserName() + " requested matching.");
-        matchingManagement.joinQueue(session, msg.getUserName(), msg.getUserId());
+        //matchingManagement.joinQueue(session, msg.getUserName(), msg.getUserId());
     }
 
     private void handleMatchCreated(ApplicationToClientManagementMessage msg, Session session) {
