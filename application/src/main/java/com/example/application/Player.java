@@ -1,4 +1,4 @@
-package com.example.application.Client;
+package com.example.application;
 
 public class Player {
     private int userId;
