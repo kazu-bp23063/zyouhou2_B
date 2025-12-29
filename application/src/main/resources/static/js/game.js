@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 3. WebSocket 接続完了時の処理 ---
     socket.onopen = () => {
         console.log("Game WebSocket Connected. PlayerID:", myPlayerId);
-        // 【重要】サーバーに自分を登録し、プッシュ通知を受け取れるようにする
         const joinMsg = {
             taskName: "GAME_JOIN",
             roomId: roomId,
@@ -38,8 +37,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('event-message').innerText = data.message;
             if (diceResult) diceResult.innerText = data.diceValue;
 
+            const pIndex = 0;
             // ② 駒の移動を実行
-            updatePieceVisual(data.lastPlayerId, data.newPosition);
+            updatePieceVisual(data.lastPlayerId, data.newPosition,pIndex);
 
             // ③ 単位の更新（自分の番が終わった時、または誰かが動いた時）
             if (data.lastPlayerId === myPlayerId) {
@@ -122,36 +122,41 @@ function handleTurnChange(nextId) {
     }
 }
 
+const myColor = urlParams.get('color'); // URLから自分の色を復元
 
 function setupPlayersUI(players) {
     const container = document.querySelector('.board-container');
-    players.forEach((p) => {
-        if (!document.getElementById(`player-${p.id}`)) {
-            const piece = document.createElement('div');
+    players.forEach((p, i) => {
+        let piece = document.getElementById(`player-${p.id}`);
+        if (!piece) {
+            piece = document.createElement('div');
             piece.id = `player-${p.id}`;
-            piece.className = 'player-piece'; //
-            piece.style.backgroundColor = p.color;
-            piece.innerText = p.name.substring(0, 1);
+            piece.className = 'player-piece';
             container.appendChild(piece);
         }
-        updatePieceVisual(p.id, p.currentPosition);
+        // 色を適用
+        piece.style.backgroundColor = p.color;
+        piece.style.background = p.color; 
+        piece.innerText = p.name.substring(0, 1);
+
+        updatePieceVisual(p.id, p.currentPosition, i); // インデックスを渡す
     });
 }
 
-function updatePieceVisual(playerId, cellIndex) {
+function updatePieceVisual(playerId, positionIndex, playerIndex) {
     const piece = document.getElementById(`player-${playerId}`);
-    const cell = document.getElementById(`cell-${cellIndex}`); //
-    if (piece && cell) {
-        // 複数人重なった時のためのオフセット
-        const offset = (playerId.length % 5) * 5;
-        piece.style.top = `${cell.offsetTop + 5 + offset}px`;
-        piece.style.left = `${cell.offsetLeft + 5 + offset}px`;
-        
-        if (playerId === myPlayerId) {
-            const modalPos = document.getElementById('modal-pos');
-            if (modalPos) modalPos.innerText = cellIndex;
-        }
-    }
+    const cell = document.getElementById(`cell-${positionIndex}`);
+    if (!piece || !cell) return;
+
+    // 重なり防止：プレイヤー番号に応じて位置をずらす
+    const offsetX = (playerIndex % 2) * 15;
+    const offsetY = Math.floor(playerIndex / 2) * 15;
+
+    const cellRect = cell.getBoundingClientRect();
+    const containerRect = document.querySelector('.board-container').getBoundingClientRect();
+
+    piece.style.left = `${(cellRect.left - containerRect.left) + offsetX + 5}px`;
+    piece.style.top = `${(cellRect.top - containerRect.top) + offsetY + 5}px`;
 }
 
 // アイテム選択用（HTMLのonclickから呼ばれる）

@@ -25,4 +25,10 @@ public class RoomManager {
                 .findFirst()
                 .orElse(null);
     }
+
+    public static RoomManager instance; 
+
+    public RoomManager() {
+        instance = this;
+    }
 }

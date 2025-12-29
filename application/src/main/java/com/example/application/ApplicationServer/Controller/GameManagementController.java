@@ -2,19 +2,14 @@ package com.example.application.ApplicationServer.Controller;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.example.application.ApplicationServer.Entity.GameEvent;
-import com.example.application.ApplicationServer.Entity.GameMap;
-import com.example.application.ApplicationServer.Entity.Player;
-import com.example.application.ApplicationServer.Entity.Room;
-import com.example.application.ClientManagementServer.CommunicationController;
+import com.example.application.ApplicationServer.Entity.*;
 import com.google.gson.Gson;
 
 import jakarta.websocket.Session;
 
 public class GameManagementController {
     private final Gson gson = new Gson();
-    private final RoomManager roomManager = new RoomManager();
+    private final RoomManager roomManager = RoomManager.instance;
     private final DiceController diceController = new DiceController();
     private final GameMap gameMap = new GameMap(); 
 
@@ -25,7 +20,7 @@ public class GameManagementController {
         String roomId = (String) msg.get("roomId"); 
 
         if (playerId != null) {
-            CommunicationController.userSessions.put(playerId, session);
+            SessionManager.userSessions.put(playerId, session);
             resetAFKCount(roomId, playerId);
             System.out.println("[Game] Session registered for: " + playerId);
         }
@@ -181,7 +176,7 @@ public class GameManagementController {
     private void broadcastToRoom(Room room, Object messageObj) {
         String json = gson.toJson(messageObj);
         for (Player p : room.getPlayers()) {
-            CommunicationController.sendToUser(p.getId(), json);
+            SessionManager.sendToUser(p.getId(), json);
         }
     }
 }

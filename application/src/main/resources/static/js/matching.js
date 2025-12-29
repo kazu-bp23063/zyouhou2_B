@@ -16,7 +16,6 @@ const loginName = /*[[${session.loginName}]]*/ 'Guest';
         } 
         else if (data.taskName === "MATCH_FOUND") {
             console.log("Success! RoomID:", data.roomId);
-            // roomIdが正しく入っているかチェックして遷移
             if (data.roomId) {
                 window.location.href = `/game?roomId=${data.roomId}&playerId=${loginName}`;
             }

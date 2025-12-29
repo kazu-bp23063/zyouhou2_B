@@ -14,7 +14,6 @@ import java.util.List;
 @Controller
 public class ResultController {
     
-    // DatabaseAccess を使用
     private final DatabaseAccess dbAccess = new DatabaseAccess();
     private final RoomManager roomManager = new RoomManager();
 
@@ -40,12 +39,12 @@ public class ResultController {
         ranking.add(new RankedPlayer(currentRank, p.getName(), p.getEarnedUnits()));
     }
 
-    // 3. 【修正】synchronizedを使って二重更新を完全に防ぐ
-    synchronized(room) { // roomオブジェクトをロックする
+    // 3.synchronizedを使って二重更新を完全に防ぐ
+    synchronized(room) { 
         if (!room.isRankUpdated()) {
             System.out.println("\n========== [DATABASE UPDATE: " + roomId + "] ==========");
             updateRanksInDb(ranking); // DatabaseAccess経由の更新
-            room.setRankUpdated(true); // ここでフラグを立てる
+            room.setRankUpdated(true);
             System.out.println("============================================\n");
         } else {
             System.out.println("[Info] Room " + roomId + " is already updated. Skipping.");
@@ -56,9 +55,6 @@ public class ResultController {
     return "result";
 }
 
-    /**
-     * DatabaseAccess を使用して各プレイヤーのランク回数をインクリメントし、ログを出す
-     */
     private void updateRanksInDb(List<RankedPlayer> ranking) {
         for (RankedPlayer rp : ranking) {
             // DatabaseAccess のメソッドを呼び出し
