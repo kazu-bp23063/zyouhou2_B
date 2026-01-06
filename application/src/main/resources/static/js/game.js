@@ -13,6 +13,9 @@ const socket = new WebSocket("ws://localhost:8080/game-server");
 let selectedItemType = null;
 let selectedTargetValue = null;
 
+// （三平）プレイヤーID -> 表示インデックス を保持（重なり防止のため）
+const playerIndexMap = new Map(); // （三平）
+
 document.addEventListener('DOMContentLoaded', async () => {
     const diceBtn = document.getElementById('diceStart');
     const eventMsg = document.getElementById('event-message');
@@ -35,19 +38,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("--- 受信データ ---", data);
 
         if (data.taskName === "GAME_UPDATE") {
+
             // ① 出目の表示
             const diceResult = document.querySelector('#dice-result-text span');
             document.getElementById('event-message').innerText = data.message;
             if (diceResult) diceResult.innerText = data.diceValue;
 
-            const pIndex = 0;
+            // （三平）playerIndex を lastPlayerId から復元（固定0をやめて重なり防止）
+            const pIndex = playerIndexMap.has(data.lastPlayerId) ? playerIndexMap.get(data.lastPlayerId) : 0; // （三平）
+
             // ② 駒の移動を実行
-            updatePieceVisual(data.lastPlayerId, data.newPosition,pIndex);
+            updatePieceVisual(data.lastPlayerId, data.newPosition, pIndex);
+
+            // （三平）マス移動が終わってからポップアップを出す（描画後に出したいので setTimeout）
+            if (data.eventMessage) { // （三平）
+                setTimeout(() => alert(data.eventMessage), 0); // （三平）
+            }
 
             // ③ 単位の更新（自分の番が終わった時、または誰かが動いた時）
             if (data.lastPlayerId === myPlayerId) {
                 earnedUnitsDisplay.innerText = data.earnedUnits;
                 document.getElementById('modal-earned').innerText = data.earnedUnits;
+
+                // （三平）予定単位もサーバーから来ていれば反映（必要ないなら消してOK）
+                if (data.expectedUnits !== undefined && data.expectedUnits !== null) {
+                    const expectedUnitsDisplay = document.getElementById('expected-units');
+                    const modalExpected = document.getElementById('modal-expected');
+                    if (expectedUnitsDisplay) expectedUnitsDisplay.innerText = data.expectedUnits; // （三平）
+                    if (modalExpected) modalExpected.innerText = data.expectedUnits; // （三平）
+                }
             }
 
             // ④ 【重要】ターンの判定とボタン制御
@@ -67,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     diceBtn.addEventListener('click', () => {
         // 二重送信防止
         diceBtn.disabled = true;
-        
+
         const rollMsg = {
             taskName: "GAME_ROLL",
             roomId: roomId,
@@ -76,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             targetValue: selectedTargetValue
         };
         socket.send(JSON.stringify(rollMsg));
-        
+
         // アイテム使用後はリセット
         selectedItemType = null;
         selectedTargetValue = null;
@@ -88,14 +107,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const res = await fetch(`/api/matching/status?roomId=${roomId}`);
         const room = await res.json();
         setupPlayersUI(room.players);
-        
+
         // 最初の手番プレイヤーを確認してボタン状態をセット
         const initialTurnPlayer = room.players[room.turnIndex];
         handleTurnChange(initialTurnPlayer.id);
     } catch (err) {
         console.error("初期データの取得に失敗:", err);
     }
-    
+
     statusBtn.onclick = () => modal.style.display = "block";
     closeBtn.onclick = () => modal.style.display = "none";
     window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
@@ -130,6 +149,10 @@ const myColor = urlParams.get('color'); // URLから自分の色を復元
 function setupPlayersUI(players) {
     const container = document.querySelector('.board-container');
     players.forEach((p, i) => {
+
+        // （三平）IDごとのインデックスを固定保存（重なり防止のため）
+        if (!playerIndexMap.has(p.id)) playerIndexMap.set(p.id, i); // （三平）
+
         let piece = document.getElementById(`player-${p.id}`);
         if (!piece) {
             piece = document.createElement('div');
