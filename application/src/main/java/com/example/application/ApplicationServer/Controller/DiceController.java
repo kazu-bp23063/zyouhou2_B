@@ -16,16 +16,19 @@ public class DiceController {
      */
     public int executeRoll(String itemType, Integer targetValue) {
         if ("JUST".equals(itemType) && targetValue != null) {
+            System.out.println("Executing JUST roll with target value: " + targetValue);
             return targetValue;
         }
 
         if ("DOUBLE".equals(itemType)) {
+            System.out.println("Executing DOUBLE roll");
             return roll() + roll();
         }
 
         return roll();
     }
     public int roll() {
+        System.out.println("Rolling the dice...");
         return random.nextInt(6) + 1;
     }
 }

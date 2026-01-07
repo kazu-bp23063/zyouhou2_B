@@ -1,4 +1,4 @@
-package com.example.application.ClientManagementServer;
+package com.example.application.ClientManagementServer.Controller;
 
 import java.util.*;
 
@@ -55,6 +55,7 @@ public class MatchingManagement {
             Player p = new Player(entry.userName, colors[i]);
             p.setId(entry.userId); 
             room.addPlayer(p);
+            System.out.println("[Matching] Added player " + p.getName() + " to room " + room.getRoomId() + " with color " + colors[i]);
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -64,6 +65,7 @@ public class MatchingManagement {
         String json = gson.toJson(response);
         for (PlayerEntry player : group) {
             sendMessage(player.session, json);
+            System.out.println("[Matching] Sent to " + player.userName + ": " + json);
         }
         System.out.println("[Matching] Match Success! RoomID: " + room.getRoomId());
     }
@@ -72,9 +74,11 @@ public class MatchingManagement {
         try {
             if (session.isOpen()) {
                 session.getBasicRemote().sendText(text);
+                System.out.println("[Matching] Sent message to session: " + text);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("[Matching] Failed to send message to session: " + e.getMessage());
         }
     }
 

@@ -1,10 +1,13 @@
-package com.example.application.ClientManagementServer;
+package com.example.application.ClientManagementServer.Controller;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import com.example.application.ClientManagementServer.Entity.RankRecord;
+import com.example.application.ClientManagementServer.Entity.User;
 
 
 public class DatabaseAccess {

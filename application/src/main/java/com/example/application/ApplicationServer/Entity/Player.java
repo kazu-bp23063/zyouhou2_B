@@ -33,6 +33,6 @@ public class Player {
 
     // 卒業要件チェック (124単位以上)
     public boolean checkGraduationRequirement() {
-        return this.earnedUnits >= 124;
+        return this.earnedUnits >= 25;
     }
 }

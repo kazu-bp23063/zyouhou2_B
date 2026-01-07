@@ -11,12 +11,11 @@ public class GameManagementController {
     private final DiceController diceController = new DiceController();
     private final GameMap gameMap = new GameMap(); // （三平）マスイベント参照用（追加）
 
-    // ✅ RoomManager を安全に取得するメソッド
     private RoomManager getRoomManager() {
         return RoomManager.instance;
     }
 
-// GameManagementController.java
+
 
 public void processGameMessage(String json, Session session) {
     Map<String, Object> msg = gson.fromJson(json, Map.class);
@@ -25,7 +24,6 @@ public void processGameMessage(String json, Session session) {
     String roomId = (String) msg.get("roomId"); 
 
     if (playerId != null) {
-        // ✅ 修正：コメントアウトを外し、セッションを登録する
         SessionManager.userSessions.put(playerId, session); 
         resetAFKCount(roomId, playerId);
         System.out.println("[Game] Session registered for: " + playerId);
@@ -33,14 +31,11 @@ public void processGameMessage(String json, Session session) {
 
     switch (taskName) {
         case "GAME_JOIN" -> {
-            // ✅ 修正：RoomManagerから部屋を取得し、プレイヤーをリストに追加する
             RoomManager rm = getRoomManager();
             Room room = rm.getRoom(roomId);
             if (room != null) {
-                // 重複チェックをしてから追加
                 boolean exists = room.getPlayers().stream().anyMatch(p -> p.getId().equals(playerId));
                 if (!exists) {
-                    // 名前とIDを同じにして、仮の色(redなど)で追加
                     Player newPlayer = new Player(playerId, "red");
                     room.getPlayers().add(newPlayer);
                     System.out.println("[Game] 部屋 " + roomId + " にプレイヤー " + playerId + " を追加しました。現在: " + room.getPlayers().size() + "人");
@@ -66,7 +61,6 @@ public void processGameMessage(String json, Session session) {
     
     Room room = rm.getRoom(roomId);
     if (room == null) {
-        // ✅ 部屋が見つからない場合にログを出すようにする
         System.out.println("[Game] 部屋が見つかりません: " + roomId);
         return;
     }
@@ -76,15 +70,34 @@ public void processGameMessage(String json, Session session) {
         int currentTurnIndex = room.getTurnIndex();
         Player currentPlayer = room.getPlayers().get(currentTurnIndex);
 
-        // ✅ 手番チェックのログを追加
+    if (currentPlayer.getId().equals(playerId) && currentPlayer.isSkipped()) {
+        System.out.println("[Game] " + playerId + " は休みです。");
+        currentPlayer.setSkipped(false); 
+
+        int nextIdx = (currentTurnIndex + 1) % room.getPlayers().size();
+        room.setTurnIndex(nextIdx);
+        Player nextPlayer = room.getPlayers().get(nextIdx);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("taskName", "GAME_UPDATE");
+        response.put("diceValue", "休み"); 
+        response.put("lastPlayerId", playerId);
+        response.put("newPosition", currentPlayer.getCurrentPosition());
+        response.put("earnedUnits", currentPlayer.getEarnedUnits());   
+        response.put("expectedUnits", currentPlayer.getExpectedUnits());
+        response.put("nextPlayerId", nextPlayer.getId());
+        response.put("isGraduated", false);
+        response.put("message", playerId + " は一回休みです。");
+
+        broadcastToRoom(room, response);
+        return;
+    }
+
     if (!currentPlayer.getId().equals(playerId)) {
         System.out.println("[Game] 却下: " + playerId + " の番ではありません。現在の手番: " + currentPlayer.getId());
         return;
     }
 
-        if (!currentPlayer.getId().equals(playerId)) return;
-
-        // --- ダイス実行 ---
         int rolledNumber = diceController.executeRoll(itemType, targetValue);
         System.out.println("[Game] ダイスの出目: " + rolledNumber);
 
@@ -145,6 +158,26 @@ public void processGameMessage(String json, Session session) {
         // （三平）イベント移動（+2 / -1）がある場合はここで最終位置を反映
         currentPlayer.setCurrentPosition(finalPosition); // （三平）
 
+    GameEvent event = gameMap.getGameEvent(newPos);
+    if (event != null) {
+        // JavaScriptのアラートは使わず、System.out でサーバーにのみ表示
+        System.out.println("[Event発生] プレイヤー: " + playerId + " | マス: " + newPos + " | 内容: " + event.getEventContent());
+        
+        // イベントによる単位の増減を適用
+        int currentExpected = currentPlayer.getExpectedUnits();
+        int adjustment = event.getCreditAdjustmentValue();
+        currentPlayer.setExpectedUnits(currentExpected + adjustment);
+        
+        System.out.println("[Event適用] 予定単位が更新されました: " + currentExpected + " -> " + currentPlayer.getExpectedUnits());
+
+        // 特殊効果（一回休みなど）のログ出力
+        if (event.getEventEffect() == GameEvent.EFFECT_SKIP) {
+            System.out.println("[Event効果] " + playerId + " は次の一回休みが適用されます。");
+            currentPlayer.setSkipped(true);
+            currentPlayer.setExpectedUnits(currentExpected + adjustment);
+        }
+    }
+
         // ターン送り
         int nextTurnIndex = (currentTurnIndex + 1) % room.getPlayers().size();
 
@@ -170,7 +203,8 @@ public void processGameMessage(String json, Session session) {
         response.put("lastPlayerId", playerId);
         response.put("diceValue", rolledNumber);
         response.put("newPosition", currentPlayer.getCurrentPosition());
-        response.put("earnedUnits", currentPlayer.getEarnedUnits()); 
+        response.put("earnedUnits", currentPlayer.getEarnedUnits());
+        response.put("expectedUnits", currentPlayer.getExpectedUnits());
         response.put("nextPlayerId", nextPlayer.getId());
         response.put("isGraduated", isGraduated);
 

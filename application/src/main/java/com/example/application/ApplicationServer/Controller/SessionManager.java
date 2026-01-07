@@ -13,6 +13,7 @@ public class SessionManager {
         if (session != null && session.isOpen()) {
             // 非同期でメッセージを送信
             session.getAsyncRemote().sendText(message);
+            System.out.println("[SessionManager] Sent to " + userId + ": " + message);
         }
     }
 }

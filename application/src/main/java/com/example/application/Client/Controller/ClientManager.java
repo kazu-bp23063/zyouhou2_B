@@ -15,8 +15,17 @@ public class ClientManager {
     private final String AUTH_API_URL = "http://localhost:8080/api/auth";
 
 
-    @GetMapping("/") public String home() { return "home"; }
-    @GetMapping("/start") public String start() { return "start"; }
+    @GetMapping("/") 
+    public String home() {
+        System.out.println("Accessed home page");
+        return "home"; 
+    }
+
+    @GetMapping("/start") 
+    public String start() { 
+        System.out.println("Accessed start page");
+        return "start"; 
+    }
 
     @PostMapping("/login-process")
     public String processLogin(@RequestParam String username, @RequestParam String password,
@@ -26,10 +35,12 @@ public class ClientManager {
             Map response = restTemplate.postForObject(AUTH_API_URL + "/login", request, Map.class);
             if (response != null) {
                 session.setAttribute("loginName", username);
+                System.out.println("User " + username + " logged in successfully.");
                 return "redirect:/start";
             }
         } catch (Exception e) {
             model.addAttribute("error", "ログイン失敗、または既にログイン中です。");
+            System.out.println("Login failed for user " + username + ": " + e.getMessage());
         }
         return "home";
     }
@@ -39,9 +50,11 @@ public class ClientManager {
         try {
             restTemplate.postForObject(AUTH_API_URL + "/register", 
                 Map.of("username", username, "password", password), String.class);
+                System.out.println("User " + username + " registered successfully.");
             return "redirect:/";
         } catch (Exception e) {
             model.addAttribute("error", "登録に失敗しました。");
+            System.out.println("Registration failed for user " + username + ": " + e.getMessage());
             return "home";
         }
     }
@@ -52,7 +65,11 @@ public class ClientManager {
         if (user != null) {
             try {
                 restTemplate.postForObject(AUTH_API_URL + "/logout", Map.of("username", user), String.class);
-            } catch (Exception e) { e.printStackTrace(); }
+                System.out.println("User " + user + " logged out successfully.");
+            } catch (Exception e) { 
+                e.printStackTrace(); 
+                System.out.println("Logout failed for user " + user + ": " + e.getMessage());
+            }
         }
         session.invalidate();
         return "redirect:/";
@@ -60,11 +77,13 @@ public class ClientManager {
 
     @GetMapping("/matchingWait")
     public String matchingWait() {
+        System.out.println("Accessed matchingWait page");
         return "matchingwait";
     }
 
     @GetMapping("/rule")
     public String rule() {
+        System.out.println("Accessed rule page");
         return "rule";
     }
 
@@ -73,6 +92,7 @@ public class ClientManager {
         model.addAttribute("earnedUnits", 0);
         model.addAttribute("expectedUnits", 25);
         model.addAttribute("result", "ダイスを振ってください");
+        System.out.println("Accessed game page");
         return "game";
     }
     

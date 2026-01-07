@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ServerEndpoint("/game-server") // ✅ game.js からの接続先
-public class EndpointSample {
+public class Endpoint {
     private static final Gson gson = new Gson();
-    // ✅ 同じ ApplicationServer パッケージ内のコントローラを呼び出す
+    // 同じ ApplicationServer パッケージ内のコントローラを呼び出す
     private static final GameManagementController gameController = new GameManagementController();
 
     @OnMessage

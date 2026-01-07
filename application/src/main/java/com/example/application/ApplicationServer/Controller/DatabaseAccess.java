@@ -25,8 +25,9 @@ public class DatabaseAccess {
         final String sql = "UPDATE account SET " + columnName + " = " + columnName + " + 1 WHERE username = ?";
         
         try (Connection con = open();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+            PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
+            System.out.println("Incrementing " + columnName + " for user: " + username);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             throw new RuntimeException("リザルト更新（incrementRankCount）に失敗しました", e);

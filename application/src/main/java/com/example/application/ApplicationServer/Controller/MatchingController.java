@@ -16,6 +16,7 @@ public class MatchingController {
     private final RoomManager roomManager;
 
     public MatchingController(RoomManager roomManager) {
+        System.out.println("MatchingController initialized with RoomManager.");
         this.roomManager = roomManager;
     }
 
@@ -32,6 +33,7 @@ public ResponseEntity<Map<String, Object>> autoJoin(@RequestParam String playerN
     // 2. 現在の「参加済み人数」を数えて、自分の色を決める
     int playerIndex = room.getPlayers().size(); // 0人目なら0、1人目なら1...
     String myColor = colors.get(playerIndex % colors.size());
+    System.out.println("Assigning color " + myColor + " to player " + playerName);
 
     // 3. プレイヤーを作成（名前と決まった色を渡す）
     Player me = new Player(playerName, myColor);
@@ -49,6 +51,7 @@ public ResponseEntity<Map<String, Object>> autoJoin(@RequestParam String playerN
     @GetMapping("/status")
     public ResponseEntity<Room> getStatus(@RequestParam String roomId) {
         Room room = roomManager.getRoom(roomId);
+        System.out.println("Fetching status for room ID: " + roomId);
         return (room != null) ? ResponseEntity.ok(room) : ResponseEntity.notFound().build();
     }
 }
