@@ -16,9 +16,6 @@ let allPlayers = []; // 全員のインデックス特定用に保持
 let selectedItemType = null;
 let selectedTargetValue = null;
 
-// （三平）プレイヤーID -> 表示インデックス を保持（重なり防止のため）
-const playerIndexMap = new Map(); // （三平）
-
 document.addEventListener('DOMContentLoaded', async () => {
     const diceBtn = document.getElementById('diceStart');
     const eventMsg = document.getElementById('event-message');
@@ -37,19 +34,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("--- 受信データ ---", data);
 
         if (data.taskName === "GAME_UPDATE") {
-            // ① 出目の表示
+            // ① メッセージと出目の表示
+            eventMsg.innerText = data.message || "";
             const diceResult = document.querySelector('#dice-result-text span');
             if (diceResult) diceResult.innerText = data.diceValue;
 
-            const pIndex = 0;
-            // ② 駒の移動を実行
-            updatePieceVisual(data.lastPlayerId, data.newPosition,pIndex);
+            // ② 重なり防止：動いたプレイヤーのインデックスを特定
+            const pIndex = allPlayers.findIndex(p => p.id === data.lastPlayerId);
+            const playerIdx = (pIndex >= 0) ? pIndex : 0;
+            updatePieceVisual(data.lastPlayerId, data.newPosition, playerIdx);
 
-            // ③ 単位の更新（自分の番が終わった時、または誰かが動いた時）
+            // ③ 全員のステータスボードを更新する
+            const cardEarned = document.getElementById(`card-earned-${data.lastPlayerId}`);
+            const cardExpected = document.getElementById(`card-expected-${data.lastPlayerId}`);
+            if (cardEarned) cardEarned.innerText = data.earnedUnits;
+            if (cardExpected) cardExpected.innerText = data.expectedUnits;
+
+            // ④ 自分のステータス表示を更新（自分自身の動きだった場合のみ）
             if (data.lastPlayerId === myPlayerId) {
                 if (earnedUnitsDisplay) earnedUnitsDisplay.innerText = data.earnedUnits;
                 if (expectedUnitsDisplay) expectedUnitsDisplay.innerText = data.expectedUnits;
                 document.getElementById('modal-earned').innerText = data.earnedUnits;
+                document.getElementById('modal-expected').innerText = data.expectedUnits;
+                
+                // アイテムボタンの状態更新（使用済みの場合はボタンを無効化）
+                updateItemButtons(data.usedDouble, data.usedJust);
             }
 
             // ⑤ ターンの強調表示（activeクラスの付け替え）
@@ -72,17 +81,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 5. ダイスを振る処理 ---
     diceBtn.addEventListener('click', () => {
         diceBtn.disabled = true;
-        
-        const rollMsg = {
-            taskName: "GAME_ROLL",
-            roomId: roomId,
-            playerId: myPlayerId,
-            itemType: selectedItemType,
-            targetValue: selectedTargetValue
-        };
-        socket.send(JSON.stringify(rollMsg));
-        
-        // アイテム使用後はリセット
+        socket.send(JSON.stringify({
+            taskName: "GAME_ROLL", roomId: roomId, playerId: myPlayerId,
+            itemType: selectedItemType, targetValue: selectedTargetValue
+        }));
         selectedItemType = null;
         selectedTargetValue = null;
         document.getElementById('selected-item-display').innerText = "使用予定: なし";
@@ -93,14 +95,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const res = await fetch(`/api/matching/status?roomId=${roomId}`);
         const room = await res.json();
         setupPlayersUI(room.players);
-        
-        // 最初の手番プレイヤーを確認してボタン状態をセット
-        const initialTurnPlayer = room.players[room.turnIndex];
-        handleTurnChange(initialTurnPlayer.id);
+        handleTurnChange(room.players[room.turnIndex].id);
+
+        // 初期ロード時に自分のアイテム状態を確認してボタンを制御
+        const me = room.players.find(p => p.id === myPlayerId);
+        if (me) {
+            updateItemButtons(me.usedDouble, me.usedJust);
+        }
+
     } catch (err) {
         console.error("初期データの取得に失敗:", err);
     }
-
+    
     statusBtn.onclick = () => modal.style.display = "block";
     closeBtn.onclick = () => modal.style.display = "none";
 });
@@ -113,6 +119,7 @@ function setupPlayersUI(players) {
     if (board) board.innerHTML = '';
 
     players.forEach((p, i) => {
+        // --- 駒の生成 ---
         let piece = document.getElementById(`player-${p.id}`);
         if (!piece) {
             piece = document.createElement('div');
@@ -171,6 +178,39 @@ function handleTurnChange(nextId) {
         diceBtn.style.opacity = "0.5";
         diceBtn.style.boxShadow = "none";
         eventMsg.innerText = `${nextId} さんの番です...`;
+    }
+}
+
+// アイテムボタンの状態更新関数
+function updateItemButtons(usedDouble, usedJust) {
+    const warningMsg = document.getElementById('item-warning-msg');
+    let message = "";
+
+    // ダブルダイスボタンの制御
+    const doubleBtn = document.getElementById('btn-double');
+    if (doubleBtn && usedDouble) {
+        doubleBtn.disabled = true;
+        doubleBtn.innerText = "ダブルダイス (使用済)";
+        doubleBtn.style.backgroundColor = "#999";
+        doubleBtn.style.cursor = "not-allowed";
+        message = "※一度使用したアイテムは使えません";
+    }
+
+    // ジャストダイスボタン群の制御
+    const justContainer = document.getElementById('btn-just-container');
+    if (justContainer && usedJust) {
+        const buttons = justContainer.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            btn.style.backgroundColor = "#999";
+            btn.style.cursor = "not-allowed";
+        });
+        message = "※一度使用したアイテムは使えません";
+    }
+
+    // メッセージ表示（どちらかが使用済みなら表示）
+    if (warningMsg) {
+        warningMsg.innerText = message;
     }
 }
 

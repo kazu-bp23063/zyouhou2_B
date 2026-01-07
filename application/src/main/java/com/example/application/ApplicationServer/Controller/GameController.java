@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import com.example.application.ApplicationServer.Entity.Player;
 import com.example.application.ApplicationServer.Entity.Room;
 
-import ch.qos.logback.classic.pattern.SyslogStartConverter;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.util.*;

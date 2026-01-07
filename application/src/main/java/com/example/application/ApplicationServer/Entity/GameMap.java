@@ -22,7 +22,6 @@ public class GameMap {
         // 18マス目: 1マス戻る
         squareList.put(18, new GameEvent("道に迷った。1マス戻る", 0, GameEvent.EFFECT_BACK));
     }
-
     /**
      * 指定された位置のイベントを取得する
      * @param position 現在のマス
