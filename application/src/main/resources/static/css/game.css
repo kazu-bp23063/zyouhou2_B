@@ -115,7 +115,6 @@ body {
 } 
 #cell-9 { 
     font-size: 30px;
-    background-color: violet;
     grid-column: 8; 
     grid-row: 3; 
 } 
@@ -169,7 +168,6 @@ body {
 } 
 #cell-19 { 
     font-size: 30px;
-    background-color: violet;
     grid-column: 1; 
     grid-row: 2; 
 }
