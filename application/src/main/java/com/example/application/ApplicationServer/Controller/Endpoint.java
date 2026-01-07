@@ -6,7 +6,7 @@ import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.stereotype.Component;
 
 @Component
-@ServerEndpoint("/game-server") // ✅ game.js からの接続先
+@ServerEndpoint("/game-server") 
 public class Endpoint {
     private static final Gson gson = new Gson();
     // 同じ ApplicationServer パッケージ内のコントローラを呼び出す

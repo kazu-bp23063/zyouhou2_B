@@ -104,8 +104,6 @@ public class ClientManager {
 
         try {
             String url = AUTH_API_URL + "/score?username=" + username;
-            
-            // APIから JSON を RankRecord オブジェクトとして受け取る
             Map<String, Object> record = restTemplate.getForObject(url, Map.class);
 
             model.addAttribute("username", username);
@@ -114,7 +112,6 @@ public class ClientManager {
             e.printStackTrace();
             model.addAttribute("error", "戦績の取得に失敗しました。");
         }
-        
         return "score"; // score.html を表示
     }
     
