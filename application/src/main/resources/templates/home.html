@@ -1,42 +1,59 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>アカウント登録</title>
-    <link rel="stylesheet" href="css/home.css">
+    <title>アカウント登録・ログイン</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/screenmove.js" defer></script>
 </head>
 <body>
     <div id="container">
         <div id="registerForm" style="display: block;">
-            <h1>アカウント登録画面</h1>
-            <p th:if="${error}" th:text="${error}" id="error-msg1" style="color: red; font-size: 20px;"></p>
+            <h1><i class="fas fa-user-plus"></i> アカウント登録</h1>
+            <p th:if="${error}" th:text="${error}" class="error-msg"></p>
+            
             <form action="/register-process" method="post">
-            <label for="username">ユーザ名</label><br>
-            <input type="text" name="username" class="username" placeholder="ユーザ名"><br>
+                <div class="input-group">
+                    <label for="username"><i class="fas fa-user"></i> ユーザ名</label>
+                    <input type="text" name="username" class="input-field" placeholder="新しいユーザ名" required>
+                </div>
 
-            <label for="password">パスワード</label><br>
-            <input type="password" name="password" id="password" placeholder="パスワード"><br>
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock"></i> パスワード</label>
+                    <input type="password" name="password" class="input-field" placeholder="パスワードを設定" required>
+                </div>
 
-            <button type="submit" class="start">アカウント登録</button><br>
-
-            既にアカウントお持ちの方は<button id="loginButton">ログインへ</button>
+                <button type="submit" class="main-button">アカウント登録</button>
+                
+                <p class="switch-text">
+                    既にアカウントお持ちの方は
+                    <button type="button" id="loginButton" class="sub-button">ログインへ</button>
+                </p>
             </form>
         </div>
 
         <div id="loginForm" style="display: none;">
-            <h1>ログイン</h1>
-            <p th:if="${error}" th:text="${error}" id="error-msg2" style="color: red; font-size: 20px;"></p>
-            <form action="/login-process" method="post">
-            <label for="username" >ユーザ名</label><br>
-            <input type="text" name="username" class="username" placeholder="ユーザ名"><br>
-        
-            <label for="password">パスワード</label><br>
-            <input type="password" name="password" class="password" placeholder="パスワード"><br>
-        
-           <button type="submit" class="start">ログイン</button><br>
+            <h1><i class="fas fa-sign-in-alt"></i> ログイン</h1>
+            <p th:if="${error}" th:text="${error}" class="error-msg"></p>
             
-            アカウントお持ちでない方は<button id="registerButton">新規登録へ</button>
+            <form action="/login-process" method="post">
+                <div class="input-group">
+                    <label for="username"><i class="fas fa-user"></i> ユーザ名</label>
+                    <input type="text" name="username" class="input-field" placeholder="ユーザ名を入力" required>
+                </div>
+        
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock"></i> パスワード</label>
+                    <input type="password" name="password" class="input-field" placeholder="パスワードを入力" required>
+                </div>
+        
+                <button type="submit" class="main-button">ログイン</button>
+                
+                <p class="switch-text">
+                    アカウントお持ちでない方は
+                    <button type="button" id="registerButton" class="sub-button">新規登録へ</button>
+                </p>
             </form>
         </div>
     </div>

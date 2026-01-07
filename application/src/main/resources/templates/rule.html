@@ -1,32 +1,37 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ルール</title>
-    <link rel="stylesheet" href="css/rule.css">
+    <title>ルール説明</title>
+    <link rel="stylesheet" th:href="@{/css/rule.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/screenmove.js" defer></script>
 </head>
 <body>
-    <a th:href="@{start}">
-    <button class="matchingStart">スタート画面に戻る</button>
-    </a>
-    <div id="rule">
-     <h1>ルール説明</h1>
-    
-     <ol>
-         <li>1</li>
-         <li>2</li>
-         <li>3</li>
-         <li>4</li>
-     </ol>
+    <div id="container">
+        <h1 class="title"><i class="fas fa-book-open"></i> ルール説明</h1>
 
-     <ul>
-         <li>1</li>
-         <li>2</li>
-         <li>3</li>
-         <li>4</li>
-     </ul>
+        <div class="rule-box">
+            <h2 class="sub-title"><i class="fas fa-university"></i> 基本ルール</h2>
+            <ul class="rule-list">
+                <li><i class="fas fa-dice"></i> このゲームはモノポリー型の<span>「大学生単位取得ゲーム」</span>です。</li>
+                <li><i class="fas fa-walking"></i> サイコロを振って、出た目の数だけ進みます。</li>
+                <li><i class="fas fa-redo"></i> 一周したら<span>25単位</span>もらえます。</li>
+                <li><i class="fas fa-users"></i> 4人対戦のゲームです。</li>
+                <li><i class="fas fa-graduation-cap"></i> 誰かが<span>124単位</span>を取得したときゲームが終了します。</li>
+                <li><i class="fas fa-exclamation-circle"></i> 特定のマスに止まるとイベントが発生し、単位が増減します。</li>
+                <li><i class="fas fa-skull-crossbones"></i> 「1回休み」や「1マス戻る」などのトラップに注意！</li>
+            </ul>
+
+            <p class="message">
+                最後まで諦めずに卒業を目指しましょう！
+            </p>
+        </div>
+
+        <a th:href="@{/start}">
+            <button class="back-button"><i class="fas fa-arrow-left"></i> スタート画面に戻る</button>
+        </a>
     </div>
 </body>
 </html>

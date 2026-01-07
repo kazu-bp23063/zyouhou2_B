@@ -1,128 +1,271 @@
-body{
-  text-align: center;
-  background: linear-gradient(120deg,#89f7fe 0%, #66a6ff 100%);
-  background-attachment: fixed;
+body {
+    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+    margin: 0; padding: 0;
+    font-family: sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; overflow: hidden;
+    color: #333;
 }
 
-#dice{
-  display: flex;
-  justify-content: center;
-  gap: 20px;
+
+.header-ui {
+    position: absolute; top: 10px; right: 20px;
+    z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.game-title {
+    margin: 0; font-size: 1.4rem; color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3); 
+}
+.header-controls { display: flex; align-items: center; gap: 10px; }
+
+
+.unit-display {
+    display: flex; gap: 10px;
+    background: rgba(255, 255, 255, 0.9); 
+    padding: 6px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.unit-item { font-size: 0.85rem; font-weight: bold; }
+#earned-units { color: #007bff; } 
+#expected-units { color: #dc3545; } 
+
+
+#status {
+    background: linear-gradient(to bottom, #555, #333);
+    color: white; border: none; padding: 6px 12px; border-radius: 6px;
+    cursor: pointer; font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.1s;
+}
+#status:active { transform: translateY(2px); }
+
+
+.board-container {
+    display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(4, 1fr);
+    gap: 0.5vmin;
+    width: 90vw; height: 60vh; margin-top: 60px;
+
+    background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+    padding: 2vmin; border-radius: 15px; border: 2px solid rgba(255,255,255,0.6);
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
 }
 
-#diceWindow1,#diceWindow2,#diceWindow3 {
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
-  border: 2px solid #333;
-  border-radius: 10px;
-  margin-bottom: 20px; 
-}
 
-.dice-strip {
-  width: 100px;
-  animation: roll 0.6s steps(6) infinite paused;
-}
-
-.dice-strip.moving {
-  animation-play-state: running; 
-}
-
-.dice-strip img {
-  width: 100px;
-  height: 100px;
-  display: block;
-}
-
-@keyframes roll {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-600px); }
-}
-
-#diceStart,#gameEnd {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 20px;
-}
-
-.none{
-  display: none;
-}
-
-select{
-  margin:20px;
-}
-
-#status{
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 150px;
-    padding: 10px;
+.board-cell {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #bbb;
     border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    display: flex; justify-content: center; align-items: center;
+    font-weight: bold; font-size: 1.6vmin;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
-#status:hover{
-    transform: translateY(-5px);
+#cell-0 { background: linear-gradient(to bottom, #ffeaa7, #fab1a0); color: #d35400; }
+
+
+#cell-0 { 
+    font-size: 30px;
+    grid-column: 1; 
+    grid-row: 1; 
+} 
+#cell-1 { 
+    font-size: 30px;
+    grid-column: 2; 
+    grid-row: 1; 
+} 
+#cell-2 {
+    font-size: 30px;
+    background-color: yellow;
+    grid-column: 3; 
+    grid-row: 1; 
 }
-
-
-
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+#cell-3 { 
+    font-size: 30px;
+    grid-column: 4; 
+    grid-row: 1; 
+} 
+#cell-4 {
+    font-size: 30px; 
+    grid-column: 5; 
+    grid-row: 1; 
+} 
+#cell-5 {
+    font-size: 30px;
+    background-color: blue; 
+    grid-column: 6; 
+    grid-row: 1; 
 }
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; 
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; 
-    max-width: 500px;
-    border-radius: 10px;
-    position: relative; 
-    text-align: center;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0; 
-    position: absolute;
+#cell-6 {
+    font-size: 30px;
+    grid-column: 7; 
+    grid-row: 1;
+} 
+#cell-7 {
+    font-size: 30px;
+    background: red;
+    grid-column: 8; 
+    grid-row: 1; 
+} 
+#cell-8 { 
+    font-size: 30px;
+    grid-column: 8; 
+    grid-row: 2; 
+} 
+#cell-9 { 
+    font-size: 30px;
+    background-color: violet;
+    grid-column: 8; 
+    grid-row: 3; 
+} 
+ #cell-10 {
+    font-size: 30px; 
+    grid-column: 8; 
+    grid-row: 4; 
 }
-
-.close-btn {
-    color: #aaa;
+#cell-11 {
+    font-size: 30px; 
+    grid-column: 7; 
+    grid-row: 4; 
+}
+#cell-12 {
+    font-size: 30px; 
+    background-color: yellow;
+    grid-column: 6; 
+    grid-row: 4; 
+} 
+#cell-13 { 
+    font-size: 30px;
+    grid-column: 5;
+    grid-row: 4; 
+} 
+#cell-14 { 
+    font-size: 30px;
+    grid-column: 4; 
+    grid-row: 4; 
+}
+#cell-15 { 
+    font-size: 30px;
+    background-color: blue; 
+    grid-column: 3; 
+    grid-row: 4;
+} 
+#cell-16 { 
+    font-size: 30px;
+    grid-column: 2; 
+    grid-row: 4; 
+} 
+#cell-17 { 
+    font-size: 30px;
     background-color: red;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 28px;
+    grid-column: 1; 
+    grid-row: 4; 
+}
+#cell-18 { 
+    font-size: 30px;
+    grid-column: 1; 
+    grid-row: 3; 
+} 
+#cell-19 { 
+    font-size: 30px;
+    background-color: violet;
+    grid-column: 1; 
+    grid-row: 2; 
+}
+
+
+.board-center-ui {
+    grid-column: 2 / 8; grid-row: 2 / 4;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(255,255,255,0.6);
+    border-radius: 15px;
+}
+.ui-content-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+#dice-result-text { font-size: 4vmin; font-weight: bold; color: #333; text-shadow: 1px 1px 2px white; }
+
+
+#diceStart {
+    background: linear-gradient(to bottom, #ff6b6b, #ee5253);
+    color: white; border: none; padding: 1.5vmin 5vmin; border-radius: 30px;
+    font-size: 2.2vmin; cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: all 0.1s;
+}
+#diceStart:active { transform: translateY(2px); box-shadow: 0 2px 3px rgba(0,0,0,0.2); }
+#diceStart:disabled { background: #ccc; cursor: not-allowed; }
+
+.player-piece {
+    position: absolute; width: 4.5vmin; height: 4.5vmin;
+    border: 2px solid white; border-radius: 50%;
+    z-index: 1000; transition: all 0.3s ease-in-out;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+
+.modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+.modal-content { background: #f9f9f9; padding: 25px; border-radius: 15px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.close-btn { position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #999; }
+
+.item-btn {
+    display: block; width: 100%; margin: 10px 0;
+    padding: 10px; background: #3498db; color: white;
+    border: none; border-radius: 5px; cursor: pointer;
+}
+.item-btn:hover { background: #2980b9; }
+#selected-item-display { font-size: 0.8rem; color: #e67e22; font-weight: bold; }
+
+.number-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.num-btn {
+    flex: 1;
+    padding: 8px;
+    background: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
     font-weight: bold;
-    cursor: pointer;
 }
 
-.close-btn:hover,
-.close-btn:focus {
-    text-decoration: none;
-    cursor: pointer;
+.num-btn:hover {
+    background: #e67e22;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th, td {
+.just-item-section {
+    background: rgba(0,0,0,0.05);
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
+
+/* game.css に追加 */
+.status-board {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+.player-status-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 8px 15px;
+    min-width: 120px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-left: 5px solid #ccc; /* プレイヤーの色をここに入れます */
+    transition: transform 0.2s;
+}
+
+.player-status-card.active {
+    transform: scale(1.05);
+    border-bottom: 3px solid #f1c40f; /* 手番のプレイヤーを強調 */
+}
+
+.status-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 3px; }
+.status-units { font-size: 0.8rem; color: #555; }
+.status-units span { font-weight: bold; color: #2c3e50; }

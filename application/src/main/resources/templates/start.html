@@ -1,30 +1,48 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>スタート</title>
-    <link rel="stylesheet" href="css/start.css">
+    <title>スタートメニュー</title>
+    <link rel="stylesheet" th:href="@{/css/start.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/screenmove.js" defer></script>
 </head>
 <body>
-    <footer>
-    <button id="logout">ログアウト</button>
-    </footer>
+    <header>
+        <form action="/logout" method="post">
+            <button type="submit" id="logout">
+                <i class="fas fa-sign-out-alt"></i> ログアウト
+            </button>
+        </form>
+    </header>
 
     <div id="container">
-    <h1><span th:text="${session.loginName}"></span>さんがログイン中</h1>
-      <a th:href="@{/game}">
-        <button id="matching">マッチング開始</button>
-     </a>
+        <h1 class="welcome-msg">
+            <i class="fas fa-graduation-cap"></i> 
+            <span th:text="${session.loginName}"></span> さん、準備はいいですか？
+        </h1>
 
-     <a th:href="@{/rule}">
-        <button id="rule">ルール</button>
-     </a>
+        <div class="menu-buttons">
+            <a th:href="@{/matchingWait}" class="main-link">
+                <button id="matching">
+                    <i class="fas fa-play-circle"></i> マッチング開始
+                </button>
+            </a>
 
-     <a th:href="@{/score}">
-        <button id="score">戦績確認</button>
-     </a>
+            <div class="sub-buttons">
+                <a th:href="@{/rule}">
+                    <button id="rule" class="menu-btn">
+                        <i class="fas fa-scroll"></i> ルール
+                    </button>
+                </a>
+
+                <a th:href="@{/score}">
+                    <button id="score" class="menu-btn">
+                        <i class="fas fa-chart-line"></i> 戦績確認
+                    </button>
+                </a>
+            </div>
+        </div>
     </div>
-
 </body>
 </html>

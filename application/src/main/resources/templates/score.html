@@ -1,26 +1,79 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>戦績確認</title>
-    <link rel="stylesheet" href="css/score.css">
-    <script src="js/screenmove.js" defer></script>
+    <link rel="stylesheet" th:href="@{/css/score.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
+    <div id="container">
+        <h1 class="title"><i class="fas fa-chart-pie"></i> 順位分布</h1>
 
-    <h1>戦績確認</h1>
+        <div th:if="${record}" class="score-content">
+            <p class="user-info">
+                <i class="fas fa-user-circle"></i> プレイヤー: 
+                <span th:text="${username}" class="highlight"></span>
+            </p>
 
-    <a th:href="@{start}">
-    <button class="matchingStart">スタート画面に戻る</button>
-    </a>
-    
-    <div id="scoreboard">
-     <h2>ユーザ名</h2>
-     <p><span id="win">勝率</span></p>
-     <p><span id="conwin">最高連勝数</span></p>
+            <div class="chart-container">
+                <canvas id="rankChart"></canvas>
+            </div>
+
+            <div class="rank-board">
+                <div class="rank-item gold">
+                    <span class="rank-label">1位</span>
+                    <span class="rank-count" th:text="${record.rank1}">0</span>
+                </div>
+                <div class="rank-item silver">
+                    <span class="rank-label">2位</span>
+                    <span class="rank-count" th:text="${record.rank2}">0</span>
+                </div>
+                <div class="rank-item bronze">
+                    <span class="rank-label">3位</span>
+                    <span class="rank-count" th:text="${record.rank3}">0</span>
+                </div>
+                <div class="rank-item iron">
+                    <span class="rank-label">4位</span>
+                    <span class="rank-count" th:text="${record.rank4}">0</span>
+                </div>
+            </div>
+        </div>
+
+        <a th:href="@{/start}">
+            <button id="back-button"><i class="fas fa-undo"></i> メニューに戻る</button>
+        </a>
     </div>
 
+    <script th:inline="javascript">
+        const ctx = document.getElementById('rankChart').getContext('2d');
+        // JavaScript内のデータ参照も record に修正
+        const data = [
+            /*[[${record.rank1}]]*/ 0,
+            /*[[${record.rank2}]]*/ 0,
+            /*[[${record.rank3}]]*/ 0,
+            /*[[${record.rank4}]]*/ 0
+        ];
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['1位', '2位', '3位', '4位'],
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#fbc02d', '#bdbdbd', '#8d6e63', '#78909c'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

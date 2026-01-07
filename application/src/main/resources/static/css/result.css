@@ -1,56 +1,104 @@
-body{
+/* 背景と中央寄せ（他の画面と統一） */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(#89f7fe 0%, #66a6ff 100%); 
+    display: flex;
+    justify-content: center; 
+    align-items: center;     
+    min-height: 100vh;
     margin: 0;
-    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
-    background-attachment: fixed;
+    color: #333;
+}
+
+/* 白いコンテナ（image_addf8e.png のスタイルを継承） */
+#container {
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 600px;
+    padding: 40px;
+    border-radius: 20px;
     text-align: center;
 }
 
-h1{
-    text-align: center;
-    margin-top:100px;
+.title {
+    font-size: 32px;
+    color: #0370ff;
+    margin-bottom: 10px;
 }
+.title i { margin-right: 10px; }
 
-table {
-    border-collapse: collapse;
-    border: 2px solid black;
-    margin: 0 auto;
-    width: 60%;
-    height: 60%;
-    font-size: 20px;
+.game-end-msg {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #444;
 }
+.game-end-msg i { color: #fbc02d; }
 
-th{
-    border: 1px solid gray;
-    padding: 10px;
-    background-color: black;
-    color: wheat;
-}
-
-td{
-    border: 1px solid gray;
-    padding: 10px;
-    background-color: rgb(219, 218, 218);
-}
-
-div{
-    background-color: #ffffff;
-    text-align: center;
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse; /* 枠線を一本にまとめる */
+    margin-bottom: 30px;
+    background-color: #fff;
     border-radius: 10px;
-    border: 2px solid black;
-    margin: auto;
-    width: 60%;
+    overflow: hidden; /* 角丸をテーブルにも適用 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-#home{
-    width: 100px;
-    height: 30px;
-    border-radius: 6px;
+.ranking-table th {
+    background-color: #0370ff;
+    color: white;
+    padding: 15px;
+    font-size: 18px;
+}
+
+.ranking-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+}
+
+.first-place {
+    background-color: #fff9c4; /* 薄い黄色 */
+    font-weight: bold;
+}
+.gold {
+    color: #fbc02d;
+    margin-right: 5px;
+}
+
+.second-place {
+    background-color: #f5f5f5;
+}
+
+#home-button {
+    background-color: #ffffff;
+    border: 2px solid #ccc;
+    color: #555;
+    width: 220px;
+    height: 55px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#home-button i { margin-right: 10px; }
+
+#home-button:hover {
+    background-color: #0370ff;
+    color: white;
+    border-color: #0370ff;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(3, 112, 255, 0.3);
 }
 
-#home:hover{
-    transform: translateY(-5px);
+a {
+    text-decoration: none;
 }
