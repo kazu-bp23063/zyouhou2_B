@@ -16,6 +16,9 @@ let allPlayers = []; // 全員のインデックス特定用に保持
 let selectedItemType = null;
 let selectedTargetValue = null;
 
+// （三平）プレイヤーID -> 表示インデックス を保持（重なり防止のため）
+const playerIndexMap = new Map(); // （三平）
+
 document.addEventListener('DOMContentLoaded', async () => {
     const diceBtn = document.getElementById('diceStart');
     const eventMsg = document.getElementById('event-message');
@@ -34,28 +37,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("--- 受信データ ---", data);
 
         if (data.taskName === "GAME_UPDATE") {
-            // ① メッセージと出目の表示
-            eventMsg.innerText = data.message || "";
+            // ① 出目の表示
             const diceResult = document.querySelector('#dice-result-text span');
             if (diceResult) diceResult.innerText = data.diceValue;
 
-            // ② 重なり防止：動いたプレイヤーのインデックスを特定
-            const pIndex = allPlayers.findIndex(p => p.id === data.lastPlayerId);
-            const playerIdx = (pIndex >= 0) ? pIndex : 0;
-            updatePieceVisual(data.lastPlayerId, data.newPosition, playerIdx);
+            const pIndex = 0;
+            // ② 駒の移動を実行
+            updatePieceVisual(data.lastPlayerId, data.newPosition,pIndex);
 
-            // ③ 全員のステータスボードを更新する
-            const cardEarned = document.getElementById(`card-earned-${data.lastPlayerId}`);
-            const cardExpected = document.getElementById(`card-expected-${data.lastPlayerId}`);
-            if (cardEarned) cardEarned.innerText = data.earnedUnits;
-            if (cardExpected) cardExpected.innerText = data.expectedUnits;
-
-            // ④ 自分のステータス表示を更新（自分自身の動きだった場合のみ）
+            // ③ 単位の更新（自分の番が終わった時、または誰かが動いた時）
             if (data.lastPlayerId === myPlayerId) {
                 if (earnedUnitsDisplay) earnedUnitsDisplay.innerText = data.earnedUnits;
                 if (expectedUnitsDisplay) expectedUnitsDisplay.innerText = data.expectedUnits;
                 document.getElementById('modal-earned').innerText = data.earnedUnits;
-                document.getElementById('modal-expected').innerText = data.expectedUnits;
             }
 
             // ⑤ ターンの強調表示（activeクラスの付け替え）
@@ -78,10 +72,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 5. ダイスを振る処理 ---
     diceBtn.addEventListener('click', () => {
         diceBtn.disabled = true;
-        socket.send(JSON.stringify({
-            taskName: "GAME_ROLL", roomId: roomId, playerId: myPlayerId,
-            itemType: selectedItemType, targetValue: selectedTargetValue
-        }));
+        
+        const rollMsg = {
+            taskName: "GAME_ROLL",
+            roomId: roomId,
+            playerId: myPlayerId,
+            itemType: selectedItemType,
+            targetValue: selectedTargetValue
+        };
+        socket.send(JSON.stringify(rollMsg));
+        
+        // アイテム使用後はリセット
         selectedItemType = null;
         selectedTargetValue = null;
         document.getElementById('selected-item-display').innerText = "使用予定: なし";
@@ -92,11 +93,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const res = await fetch(`/api/matching/status?roomId=${roomId}`);
         const room = await res.json();
         setupPlayersUI(room.players);
-        handleTurnChange(room.players[room.turnIndex].id);
+        
+        // 最初の手番プレイヤーを確認してボタン状態をセット
+        const initialTurnPlayer = room.players[room.turnIndex];
+        handleTurnChange(initialTurnPlayer.id);
     } catch (err) {
         console.error("初期データの取得に失敗:", err);
     }
-    
+
     statusBtn.onclick = () => modal.style.display = "block";
     closeBtn.onclick = () => modal.style.display = "none";
 });
@@ -109,7 +113,6 @@ function setupPlayersUI(players) {
     if (board) board.innerHTML = '';
 
     players.forEach((p, i) => {
-        // --- 駒の生成 ---
         let piece = document.getElementById(`player-${p.id}`);
         if (!piece) {
             piece = document.createElement('div');
