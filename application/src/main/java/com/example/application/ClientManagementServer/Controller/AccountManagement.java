@@ -2,14 +2,14 @@ package com.example.application.ClientManagementServer.Controller;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.example.application.ClientManagementServer.Entity.User;
+import com.example.application.ClientManagementServer.Entity.*;
 
 import org.springframework.http.ResponseEntity;
 import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.UUID;
 
-@RestController // ✅ REST API として動作
+@RestController 
 @RequestMapping("/api/auth")
 public class AccountManagement {
     private final DatabaseAccess dbAccess;
@@ -48,6 +48,15 @@ public class AccountManagement {
         System.out.println("[AccountManagement] User logged out: " + req.get("username"));
         return ResponseEntity.ok("Logged out");
     }
+    @GetMapping("/score")
+        public ResponseEntity<?> getScore(@RequestParam String username) {
+            try {
+                RankRecord record = dbAccess.getRankRecordByUsername(username);
+                return ResponseEntity.ok(record); 
+            } catch (Exception e) {
+                return ResponseEntity.status(500).build();
+            }
+        }
 
     public User login(String username, String password) {
         try {

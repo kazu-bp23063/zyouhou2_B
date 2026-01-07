@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 
 
+
 @Controller
 public class ClientManager {
     private final RestTemplate restTemplate = new RestTemplate();
@@ -95,5 +96,27 @@ public class ClientManager {
         System.out.println("Accessed game page");
         return "game";
     }
+
+    @GetMapping("/score")
+    public String showScorePage(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("loginName");
+        if (username == null) return "redirect:/";
+
+        try {
+            String url = AUTH_API_URL + "/score?username=" + username;
+            
+            // APIから JSON を RankRecord オブジェクトとして受け取る
+            Map<String, Object> record = restTemplate.getForObject(url, Map.class);
+
+            model.addAttribute("username", username);
+            model.addAttribute("record", record); // Thymeleafへ渡す
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "戦績の取得に失敗しました。");
+        }
+        
+        return "score"; // score.html を表示
+    }
+    
     
 }
