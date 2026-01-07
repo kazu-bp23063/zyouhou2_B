@@ -20,6 +20,10 @@ public class Player {
     // 追加: 放置カウント
     private int afkCount;
 
+    // ★追加: アイテム使用済みフラグ
+    private boolean usedDouble;
+    private boolean usedJust;
+
     public Player(String name, String color) {
         this.id = UUID.randomUUID().toString(); 
         this.name = name;
@@ -29,10 +33,13 @@ public class Player {
         this.expectedUnits = 25; // 初期予定単位
         this.isSkipped = false;
         this.afkCount = 0;
+
+        this.usedDouble = false;
+        this.usedJust = false;
     }
 
     // 卒業要件チェック (124単位以上)
     public boolean checkGraduationRequirement() {
-        return this.earnedUnits >= 25;
+        return this.earnedUnits >= 124;
     }
 }
