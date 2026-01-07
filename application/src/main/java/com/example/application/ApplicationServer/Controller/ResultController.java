@@ -1,16 +1,16 @@
 package com.example.application.ApplicationServer.Controller;
 
-import com.example.application.ApplicationServer.Entity.Player;
-import com.example.application.ApplicationServer.Entity.Room;
-import com.example.application.ClientManagementServer.Controller.DatabaseAccess;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.application.ApplicationServer.Entity.Player;
+import com.example.application.ApplicationServer.Entity.Room;
+import com.example.application.ClientManagementServer.Controller.DatabaseAccess;
 
 @Controller
 public class ResultController {
