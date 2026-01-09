@@ -1,93 +1,100 @@
 package com.example.application.ClientManagementServer.Controller;
 
-import org.springframework.web.bind.annotation.*;
-
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import com.example.application.ClientManagementServer.Entity.*;
-
-import org.springframework.http.ResponseEntity;
-import jakarta.annotation.PostConstruct;
+import com.google.gson.Gson;
 import java.util.Map;
 import java.util.UUID;
 
-@RestController 
-@RequestMapping("/api/auth")
+/**
+ * 管理サーバー用：Jersey (JAX-RS) 形式のコントローラー
+ */
+@Path("/auth") // RESTのベースパス。Launcherの /api と組み合わさり /api/auth となります
 public class AccountManagement {
-    private final DatabaseAccess dbAccess;
+    private final DatabaseAccess dbAccess = new DatabaseAccess();
+    private final Gson gson = new Gson();
 
     public AccountManagement() {
-        this.dbAccess = new DatabaseAccess();
-        System.out.println("[AccountManagement] インスタンスが作成されました");
+        System.out.println("[AccountManagement] JAX-RS インスタンスが作成されました");
     }
 
-    @PostConstruct
-    public void init() {
-        System.out.println("[AccountManagement] 起動時リセット実行...");
-        dbAccess.resetAllLoginStatuses(); 
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> loginApi(@RequestBody Map<String, String> req) {
+    // POST /api/auth/login
+    @Path("/login")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response loginApi(String jsonBody) {
+        // Springの @RequestBody の代わりに Gson で手動解析します
+        Map<String, String> req = gson.fromJson(jsonBody, Map.class);
         String username = req.get("username");
         String password = req.get("password");
-        User user = login(username, password);
-        if (user != null) return ResponseEntity.ok(user);
-        System.out.println("[AccountManagement] Login failed for user: " + username);
-        return ResponseEntity.status(401).build();
-    }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerApi(@RequestBody Map<String, String> req) {
-        boolean success = registerAccount(req.get("username"), req.get("password"));
-        System.out.println("[AccountManagement] Registration " + (success ? "succeeded" : "failed") + " for user: " + req.get("username"));
-        return success ? ResponseEntity.ok("Success") : ResponseEntity.badRequest().build();
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logoutApi(@RequestBody Map<String, String> req) {
-        logout(req.get("username"));
-        System.out.println("[AccountManagement] User logged out: " + req.get("username"));
-        return ResponseEntity.ok("Logged out");
-    }
-    @GetMapping("/score")
-        public ResponseEntity<?> getScore(@RequestParam String username) {
-            try {
-                RankRecord record = dbAccess.getRankRecordByUsername(username);
-                return ResponseEntity.ok(record); 
-            } catch (Exception e) {
-                return ResponseEntity.status(500).build();
-            }
+        User user = authenticate(username, password);
+        if (user != null) {
+            // ResponseEntity の代わりに Response を使用します
+            return Response.ok(gson.toJson(user)).build();
         }
+        System.out.println("[AccountManagement] Login failed for user: " + username);
+        return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
 
-    public User login(String username, String password) {
+    // POST /api/auth/register
+    @Path("/register")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response registerApi(String jsonBody) {
+        Map<String, String> req = gson.fromJson(jsonBody, Map.class);
+        boolean success = registerAccount(req.get("username"), req.get("password"));
+        return success ? Response.ok("Success").build() : Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    // POST /api/auth/logout
+    @Path("/logout")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response logoutApi(String jsonBody) {
+        Map<String, String> req = gson.fromJson(jsonBody, Map.class);
+        logout(req.get("username"));
+        return Response.ok("Logged out").build();
+    }
+
+    // GET /api/auth/score?username=...
+    @Path("/score")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getScore(@QueryParam("username") String username) {
+        try {
+            RankRecord record = dbAccess.getRankRecordByUsername(username);
+            return Response.ok(gson.toJson(record)).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // --- 内部ロジック (ClientManagementControllerからも利用可能) ---
+    public User authenticate(String username, String password) {
         try {
             User user = dbAccess.getUserByUsername(username);
             if (user != null && user.password().equals(password)) {
                 if (dbAccess.getLoginStatusByUsername(username)) return null;
                 dbAccess.setLoginStatus(username, true);
-                System.out.println("[AccountManagement] User logged in: " + username);
                 return user;
             }
-        } catch (Exception e) { 
-            e.printStackTrace(); 
-            System.out.println("[AccountManagement] Exception during login for user: " + username + " - " + e.getMessage());
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return null;
     }
 
     public boolean registerAccount(String username, String password) {
         try {
             if (dbAccess.getUserByUsername(username) != null) return false;
-            String id = UUID.randomUUID().toString();
-            dbAccess.createUser(username, password, id);
-            System.out.println("[AccountManagement] User registered: " + username);
+            dbAccess.createUser(username, password, UUID.randomUUID().toString());
             return true;
         } catch (Exception e) { return false; }
     }
 
     public void logout(String username) {
-        if (username != null) {
-            dbAccess.setLoginStatus(username, false);
-            System.out.println("[AccountManagement] User logged out: " + username);
-        }
+        if (username != null) dbAccess.setLoginStatus(username, false);
     }
 }

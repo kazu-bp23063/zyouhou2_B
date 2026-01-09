@@ -13,7 +13,8 @@ import java.util.Map;
 @Controller
 public class ClientManager {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String AUTH_API_URL = "http://localhost:8080/api/auth";
+
+    private final String AUTH_API_URL = "http://192.168.11.13:8082/api/auth";
 
 
     @GetMapping("/") 

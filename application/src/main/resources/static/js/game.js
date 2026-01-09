@@ -9,7 +9,8 @@ const modal = document.getElementById('statusModal');
 const closeBtn = document.getElementById('closeModal');
 
 // 2. WebSocket接続
-const socket = new WebSocket("ws://localhost:8080/game-server");
+const serverIp = window.location.hostname; 
+const socket = new WebSocket(`ws://${serverIp}:8081/game-server`);
 
 // 全プレイヤー情報とアイテムの状態管理
 let allPlayers = []; // 全員のインデックス特定用に保持
@@ -92,7 +93,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 6. 初期化：現在の部屋の状態を取得 ---
     try {
-        const res = await fetch(`/api/matching/status?roomId=${roomId}`);
+        const mgmtIp = "192.168.11.13"; 
+        const res = await fetch(`http://${mgmtIp}:8082/api/matching/status?roomId=${roomId}`);
         const room = await res.json();
         setupPlayersUI(room.players);
         handleTurnChange(room.players[room.turnIndex].id);

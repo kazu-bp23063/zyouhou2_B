@@ -8,7 +8,7 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 
 @Component
-@ServerEndpoint("/client-management")
+@ServerEndpoint("/matching")
 public class CommunicationController {
     public static final Map<String, Session> userSessions = new ConcurrentHashMap<>();
     private static final ClientManagementController authController = new ClientManagementController();

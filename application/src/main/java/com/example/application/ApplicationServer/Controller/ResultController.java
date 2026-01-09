@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.application.ApplicationServer.Entity.Player;
 import com.example.application.ApplicationServer.Entity.Room;
-import com.example.application.ClientManagementServer.Controller.DatabaseAccess;
 
 @Controller
 public class ResultController {
@@ -18,7 +17,7 @@ public class ResultController {
     // データベース操作用クラスのインスタンス化
     private final DatabaseAccess dbAccess = new DatabaseAccess();
     // 部屋管理用マネージャーのインスタンス化
-    private final RoomManager roomManager = new RoomManager();
+    private final RoomManager roomManager = RoomManager.instance;
 
    /**
     * リザルト画面を表示し、順位の計算とDB更新を行うエンドポイント。

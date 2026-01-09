@@ -6,9 +6,13 @@ import com.example.application.ClientManagementServer.Message.ClientToClientMana
 import com.google.gson.Gson;
 import jakarta.websocket.Session;
 
+/**
+ * WebSocket通信を制御するコントローラー
+ */
 public class ClientManagementController {
     private final Gson gson = new Gson();
-    private final AccountManagement management = new AccountManagement(); // ロジック共有
+    // ロジックを共有するためにインスタンス化
+    private final AccountManagement management = new AccountManagement(); 
     private static final MatchingManagement matchingManagement = new MatchingManagement();
 
     public void processClientMessage(String json, Session session) {
@@ -16,23 +20,21 @@ public class ClientManagementController {
         
         switch (msg.getTaskName()) {
             case "LOGIN" -> {
-                User user = management.login(msg.getUserName(), msg.getPassword());
+                // authenticate() メソッドを呼び出すように変更
+                User user = management.authenticate(msg.getUserName(), msg.getPassword());
                 send(session, new ClientMessage(user != null, null));
-                System.out.println("[ClientManagementController] Login attempt for user: " + msg.getUserName() + " - " + (user != null ? "Success" : "Failure"));
             }
             case "REGISTER" -> {
                 boolean res = management.registerAccount(msg.getUserName(), msg.getPassword());
                 send(session, new ClientMessage(res, null));
-                System.out.println("[ClientManagementController] Registration attempt for user: " + msg.getUserName() + " - " + (res ? "Success" : "Failure"));
             }
             case "LOGOUT" -> {
                 management.logout(msg.getUserName());
                 send(session, new ClientMessage(true, null));
-                System.out.println("[ClientManagementController] Logout for user: " + msg.getUserName());
             }
             case "MATCHING" -> {
+                // マッチング待機リストへ追加
                 matchingManagement.addUserToWaitList(session, msg.getUserName(), msg.getUserId());
-                System.out.println("[ClientManagementController] Matching request for user: " + msg.getUserName());
             }
         }
     }
@@ -40,9 +42,8 @@ public class ClientManagementController {
     private void send(Session session, Object obj) {
         try { 
             session.getBasicRemote().sendText(gson.toJson(obj)); 
-            System.out.println("[ClientManagementController] Sent message to client: " + gson.toJson(obj));
         } catch (Exception e) {
-            System.out.println("[ClientManagementController] Failed to send message to client: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
