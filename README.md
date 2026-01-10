@@ -1,13 +1,12 @@
 ﻿#   情報実験II_B班
 
-## それぞれのアドレス
-クライアント:http://自分のIPアドレス:8081
+## ServerAddress
 
-クライアント管理サーバ
+ClientManagemenetServer
 WebSocket:ws://IPアドレス:8080
 REST API:http://IPアドレス:8082
 
-アプリケーションサーバ
+ApplicationServer
 WebSocket:ws://IPアドレス:8081
 REST API:http://IPアドレス:8081
 
@@ -39,6 +38,7 @@ CSSファイルは[src/main/resources/static/css]に入れる
 JSファイルは[src/main/resources/static/js]に入れる
 
 画像ファイルは[src/main/resources/static/images]に入れる
+
 
 
 
