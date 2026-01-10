@@ -1,134 +1,122 @@
 package com.example.application.Client.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.example.application.ApplicationServer.Controller.CreditManager;
-import com.example.application.ApplicationServer.Controller.DiceController;
-import com.example.application.Client.Entity.Account;
-import com.example.application.Client.Repository.AccountRepository;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import java.util.Optional;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
+import java.util.Map;
 
 
 
 @Controller
 public class ClientManager {
-    private DiceController diceController;
-    private CreditManager creditManager;
-    private int currentPosition = 0;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String AUTH_API_URL = "http://localhost:8080/api/auth";
 
-    public ClientManager(DiceController diceController, CreditManager creditManager) {
-        this.diceController = diceController;
-        this.creditManager = creditManager;
-    }
-    @Autowired
-    private AccountRepository repository;
 
-    @GetMapping("/")
+    @GetMapping("/") 
     public String home() {
-        
+        System.out.println("Accessed home page");
+        return "home"; 
+    }
+
+    @GetMapping("/start") 
+    public String start() { 
+        System.out.println("Accessed start page");
+        return "start"; 
+    }
+
+    @PostMapping("/login-process")
+    public String processLogin(@RequestParam String username, @RequestParam String password,
+                               HttpSession session, Model model) {
+        try {
+            Map<String, String> request = Map.of("username", username, "password", password);
+            Map response = restTemplate.postForObject(AUTH_API_URL + "/login", request, Map.class);
+            if (response != null) {
+                session.setAttribute("loginName", username);
+                System.out.println("User " + username + " logged in successfully.");
+                return "redirect:/start";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "ログイン失敗、または既にログイン中です。");
+            System.out.println("Login failed for user " + username + ": " + e.getMessage());
+        }
         return "home";
     }
 
-    @GetMapping("/start")
-    public String start() {
-        return "start";
-    }
-
-    @GetMapping("/game")
-    public String index(Model model) {
-
-        // 1. サーバー側のデータをリセット
-        this.currentPosition = 0; 
-        creditManager.reset();
-
-        // 2. HTML側に初期値を渡す（Thymeleaf用）
-        model.addAttribute("earnedUnits", 0);
-        model.addAttribute("expectedUnits", 25);
-        model.addAttribute("result", "ダイスを振ってください");
-        
-        return "game"; // game.html を表示
-    }
-
-    @GetMapping("/score")
-    public String showScore(HttpSession session, Model model) {
-    // 1. セッションからログイン中の名前を取得
-    String loginName = (String) session.getAttribute("loginName");
-
-    if (loginName != null) {
-        // 2. データベースからユーザー情報を検索
-        Optional<Account> userOpt = repository.findById(loginName);
-        
-        if (userOpt.isPresent()) {
-            // 3. データをModelに入れてHTMLに渡す
-            model.addAttribute("account", userOpt.get());
-        }
-    }
-    
-    return "score"; // score.htmlを表示
-}
-
-    @GetMapping("/rule")
-    public String rule() {
-        return "rule";
-    }
-
-@GetMapping("/logout")
-public String logout(HttpSession session) {
-    session.invalidate();
-    return "redirect:/";
-}
-
-    
-    @PostMapping("/login-process")
-    public String processLogin(@RequestParam("username") String name,
-                               @RequestParam("password") String pass,
-                               Model model,
-                               HttpSession session) {
-        
-        Optional<Account> user = repository.findById(name);
-
-        if (user.isPresent() && user.get().getPassword().equals(pass)) {
-            session.setAttribute("loginName",name);
-            return "redirect:/start"; 
-        } else {
-            model.addAttribute("error","ユーザ名またはパスワードが間違っています!!");
-            return "home"; 
-        }
-    }
-
     @PostMapping("/register-process")
-    public String processSignup(@RequestParam("username") String name,
-                                @RequestParam("password") String pass,
-                                Model model) {
-        
-        if(repository.existsById(name)){
-            model.addAttribute("error","既に登録されています。");
+    public String processSignup(@RequestParam String username, @RequestParam String password, Model model) {
+        try {
+            restTemplate.postForObject(AUTH_API_URL + "/register", 
+                Map.of("username", username, "password", password), String.class);
+                System.out.println("User " + username + " registered successfully.");
+            return "redirect:/";
+        } catch (Exception e) {
+            model.addAttribute("error", "登録に失敗しました。");
+            System.out.println("Registration failed for user " + username + ": " + e.getMessage());
             return "home";
         }
-        
-        Account newAccount = new Account();
-        newAccount.setUsername(name);
-        newAccount.setPassword(pass);
-        newAccount.setId(UUID.randomUUID().toString());
-        
-        repository.save(newAccount); 
+    }
 
-        return "redirect:/"; 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        String user = (String) session.getAttribute("loginName");
+        if (user != null) {
+            try {
+                restTemplate.postForObject(AUTH_API_URL + "/logout", Map.of("username", user), String.class);
+                System.out.println("User " + user + " logged out successfully.");
+            } catch (Exception e) { 
+                e.printStackTrace(); 
+                System.out.println("Logout failed for user " + user + ": " + e.getMessage());
+            }
+        }
+        session.invalidate();
+        return "redirect:/";
     }
 
     @GetMapping("/matchingWait")
     public String matchingWait() {
-        return "matchingWait";
+        System.out.println("Accessed matchingWait page");
+        return "matchingwait";
     }
 
+    @GetMapping("/rule")
+    public String rule() {
+        System.out.println("Accessed rule page");
+        return "rule";
+    }
 
+ @GetMapping("/game")
+    public String index(Model model, HttpSession session) {
+        model.addAttribute("earnedUnits", 0);
+        model.addAttribute("expectedUnits", 25);
+        model.addAttribute("result", "ダイスを振ってください");
+        System.out.println("Accessed game page");
+        return "game";
+    }
+
+    @GetMapping("/score")
+    public String showScorePage(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("loginName");
+        if (username == null) return "redirect:/";
+
+        try {
+            String url = AUTH_API_URL + "/score?username=" + username;
+            
+            // APIから JSON を RankRecord オブジェクトとして受け取る
+            Map<String, Object> record = restTemplate.getForObject(url, Map.class);
+
+            model.addAttribute("username", username);
+            model.addAttribute("record", record); // Thymeleafへ渡す
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "戦績の取得に失敗しました。");
+        }
+        
+        return "score"; // score.html を表示
+    }
+    
+    
 }

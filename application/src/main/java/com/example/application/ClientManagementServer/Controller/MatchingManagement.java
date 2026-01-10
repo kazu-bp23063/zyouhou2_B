@@ -1,8 +1,9 @@
-package com.example.application.ClientManagementServer;
+package com.example.application.ClientManagementServer.Controller;
 
 import java.util.*;
-import com.example.application.ApplicationServer.Controller.RoomManager; 
+
 import com.example.application.ApplicationServer.Entity.Room;
+import com.example.application.ApplicationServer.Controller.RoomManager;
 import com.example.application.ApplicationServer.Entity.Player;
 import com.google.gson.Gson;
 import jakarta.websocket.Session;
@@ -16,7 +17,6 @@ public class MatchingManagement {
     public synchronized void addUserToWaitList(Session session, String userName, String userId) {
         if (userName == null || userName.isEmpty()) return;
 
-        // すでにリストにいる場合は追加しない（重複防止）
         boolean exists = matchingWaitList.stream().anyMatch(p -> p.userId.equals(userId));
         if (!exists) {
             matchingWaitList.addLast(new PlayerEntry(userName, userId, session));
@@ -25,12 +25,11 @@ public class MatchingManagement {
         System.out.println("[Matching] Player " + userName + " joined. size: " + matchingWaitList.size());
 
         if (matchingWaitList.size() >= 4) {
-            // 4人揃った場合は、リストから取り出して部屋を作る
             List<PlayerEntry> group = new ArrayList<>();
             for (int i = 0; i < 4; i++) group.add(matchingWaitList.removeFirst());
             createUnifiedRoom(group);
         } else {
-            // 4人未満の場合は、現在の待機状況を全員に送る
+      
             broadcastWaitStatus();
         }
     }
@@ -48,7 +47,6 @@ public class MatchingManagement {
     }
 
     private void createUnifiedRoom(List<PlayerEntry> group) {
-        // RoomManager(static推奨)を通じて部屋作成
         Room room = roomManager.createRoom();
 
         String[] colors = {"#ff4d4d", "#4d94ff", "#4dff88", "#ffdb4d"};
@@ -57,16 +55,17 @@ public class MatchingManagement {
             Player p = new Player(entry.userName, colors[i]);
             p.setId(entry.userId); 
             room.addPlayer(p);
+            System.out.println("[Matching] Added player " + p.getName() + " to room " + room.getRoomId() + " with color " + colors[i]);
         }
 
-        // JavaScriptが期待する "roomId" という名前でデータを送る
         Map<String, Object> response = new HashMap<>();
         response.put("taskName", "MATCH_FOUND");
-        response.put("roomId", room.getRoomId()); // ここが重要！
+        response.put("roomId", room.getRoomId()); 
         
         String json = gson.toJson(response);
         for (PlayerEntry player : group) {
             sendMessage(player.session, json);
+            System.out.println("[Matching] Sent to " + player.userName + ": " + json);
         }
         System.out.println("[Matching] Match Success! RoomID: " + room.getRoomId());
     }
@@ -75,9 +74,11 @@ public class MatchingManagement {
         try {
             if (session.isOpen()) {
                 session.getBasicRemote().sendText(text);
+                System.out.println("[Matching] Sent message to session: " + text);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("[Matching] Failed to send message to session: " + e.getMessage());
         }
     }
 

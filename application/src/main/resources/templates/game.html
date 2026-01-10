@@ -14,6 +14,7 @@
             <div class="unit-display">
                 <div class="unit-item">次にもらえる単位: <span id="expected-units">25</span></div>
                 <div class="unit-item">現在の取得単位: <span id="earned-units">0</span></div>
+                <div id="player-status-board" class="status-board"></div>
             </div>
             <div id="event-message">サイコロを振ってください</div>
             <button id="status">ステータス確認</button>
@@ -68,11 +69,11 @@
         </table>
      <hr>
 <h3>アイテム使用</h3>
-<button type="button" class="item-btn" onclick="selectItem('DOUBLE')">ダブルダイス</button>
+<button type="button" id="btn-double" class="item-btn" onclick="selectItem('DOUBLE')">ダブルダイス</button>
 
 <div class="just-item-section">
     <p>ジャストダイス（出したい目を選択）</p>
-    <div class="number-buttons">
+    <div class="number-buttons" id="btn-just-container">
         <button type="button" class="num-btn" onclick="selectJust(1)">1</button>
         <button type="button" class="num-btn" onclick="selectJust(2)">2</button>
         <button type="button" class="num-btn" onclick="selectJust(3)">3</button>
@@ -82,6 +83,7 @@
     </div>
     </div>
         <p id="selected-item-display">使用予定: なし</p>
+        <p id="item-warning-msg" style="color: red; font-size: 0.8rem; font-weight: bold;"></p>
     </div>
 </div>
 </body>
