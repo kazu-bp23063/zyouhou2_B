@@ -19,9 +19,9 @@ Wireless LAN adapter Wi-Fiの欄のIPv4アドレスが自分のIDになる
 
 ## 実行方法
 
-＊＊1:＊＊ClientManagementServerのManagementServerLauncherを実行する
+**1:** ClientManagementServerのManagementServerLauncherを実行する
 
-＊＊2:＊＊画像の真ん中にある薄い｢run｣をクリックする
+**2:** 画像の真ん中にある薄い｢run｣をクリックする
 ![](application/src/main/resources/static/images/ApplicationStart.png)
 
 ## 編集方法
@@ -39,6 +39,7 @@ CSSファイルは[src/main/resources/static/css]に入れる
 JSファイルは[src/main/resources/static/js]に入れる
 
 画像ファイルは[src/main/resources/static/images]に入れる
+
 
 
 
