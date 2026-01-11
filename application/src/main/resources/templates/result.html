@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>リザルト画面</title>
-    <link rel="stylesheet" th:href="@{/css/result.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" th:href="@{/css/result.css}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div id="container">
-        <h1 class="title"><i class="fas fa-flag-checkered"></i> リザルト</h1>
-        
-        <div class="result-box">
-            <h2 class="game-end-msg"><i class="fas fa-crown"></i> ゲーム終了！</h2>
+      <h1 class="title"><i class="fas fa-flag-checkered"></i> リザルト</h1>
 
-            <table class="ranking-table">
-                <thead>
-                    <tr>
-                        <th>順位</th>
-                        <th>ユーザ名</th>
-                        <th>単位数</th>
-                    </tr>
-                </thead>
-                <tbody>
-    <tr th:each="player : ${ranking}" 
-        th:classappend="${player.rank == 1} ? 'first-place' : (${player.rank == 2} ? 'second-place' : '')">
-        
-        <td>
-            <i th:if="${player.rank == 1}" class="fas fa-crown gold"></i>
-            <span th:text="${player.rank} + '位'">1位</span>
-        </td>
-        <td th:text="${player.name}">ユーザ名</td>
-        <td th:text="${player.earnedUnits}">0</td>
-    </tr>
-</tbody>
-            </table>
-        </div>
+      <div class="result-box">
+        <h2 class="game-end-msg"><i class="fas fa-crown"></i> ゲーム終了！</h2>
 
-        <a th:href="@{/start}">
-            <button id="home-button"><i class="fas fa-home"></i> スタート画面に戻る</button>
-        </a>
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>ユーザ名</th>
+              <th>単位数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              th:each="player : ${ranking}"
+              th:classappend="${player.rank == 1} ? 'first-place' : (${player.rank == 2} ? 'second-place' : '')"
+            >
+              <td>
+                <i th:if="${player.rank == 1}" class="fas fa-crown gold"></i>
+                <span th:text="${player.rank} + '位'">1位</span>
+              </td>
+              <td th:text="${player.name}">ユーザ名</td>
+              <td th:text="${player.earnedUnits}">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <a th:href="@{/start}">
+        <button id="back-to-start" onclick="location.href='/start'">
+          <i class="fas fa-home"></i> スタート画面に戻る
+        </button>
+      </a>
     </div>
-</body>
+  </body>
 </html>
