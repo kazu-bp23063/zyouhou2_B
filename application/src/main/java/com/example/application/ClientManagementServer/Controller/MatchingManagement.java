@@ -13,7 +13,7 @@ import lombok.Data;
 public class MatchingManagement {
     // 待機リスト
     private static Deque<PlayerEntry> matchingWaitList = new ArrayDeque<>();
-    private static Map<String, LocalRoom> activeRooms = new HashMap<>(); 
+    private static Map<String, LocalRoom> activeRooms = new HashMap<>();
     private final Gson gson = new Gson();
 
     public synchronized void addUserToWaitList(Session session, String userName, String userId) {
@@ -53,8 +53,8 @@ public class MatchingManagement {
 
         Map<String, Object> response = new HashMap<>();
         response.put("taskName", "MATCH_FOUND");
-        response.put("roomId", roomId); 
-        
+        response.put("roomId", roomId);
+
         String json = gson.toJson(response);
         for (PlayerEntry player : group) {
             sendMessage(player.session, json);
@@ -63,25 +63,36 @@ public class MatchingManagement {
     }
 
     private void sendRoomToAppServer(LocalRoom room) {
-    try {
-        String targetIp = java.net.InetAddress.getLocalHost().getHostAddress();
-        System.out.println("[Management] Sending room info to App Server at " + targetIp);
-        String appServerUrl = "http://" + targetIp + ":8081/api/matching/register-room";
-        
-        // HttpClient または RestTemplate を使って送信
-        java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
-        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                .uri(java.net.URI.create(appServerUrl))
-                .header("Content-Type", "application/json")
-                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(gson.toJson(room)))
-                .build();
-        
-        client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-        System.out.println("[Management] アプリサーバーへ部屋情報を送信しました。");
-    } catch (Exception e) {
-        System.out.println("[Management] アプリサーバーへの送信に失敗: " + e.getMessage());
+        try {
+            String appBase = getProp("app.server.rest.base", "http://localhost:8081/api");
+            String appServerUrl = appBase + "/matching/register-room";
+            System.out.println("[Management] Sending room info to App Server at " + appServerUrl);
+
+            // HttpClient または RestTemplate を使って送信
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(appServerUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(gson.toJson(room)))
+                    .build();
+
+            client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            System.out.println("[Management] アプリサーバーへ部屋情報を送信しました。");
+        } catch (Exception e) {
+            System.out.println("[Management] アプリサーバーへの送信に失敗: " + e.getMessage());
+        }
     }
-}
+
+    private String getProp(String key, String def) {
+        String env = System.getenv(key.toUpperCase().replace('.', '_').replace('-', '_'));
+        if (env != null && !env.isBlank())
+            return env;
+        String sys = System.getProperty(key);
+        if (sys != null && !sys.isBlank())
+            return sys;
+        return def;
+    }
+
     public LocalRoom getRoomById(String roomId) {
         return activeRooms.get(roomId);
     }

@@ -10,10 +10,11 @@ import com.example.application.ClientManagementServer.Controller.AccountManageme
 import java.net.URI;
 
 public class ManagementServerLauncher {
-    static String contextRoot = "/app";
-    static String protocol = "ws";
-    static int port = 8080;
-    public static final String restUri = "http://0.0.0.0:8082/api"; 
+
+    static String wsContextRoot = "/app";
+    static String wsHost = "0.0.0.0";
+    static int wsPort = 8080;
+    public static final String restUri = "http://0.0.0.0:8082/api";
 
     public static void main(String[] args) throws Exception {
 
@@ -21,20 +22,21 @@ public class ManagementServerLauncher {
         dbAccess.resetAllLoginStatuses();
 
         // WebSocketサーバの起動
-        Server wsServer = new Server(protocol, port, contextRoot, null, CommunicationController.class);
+        Server wsServer = new Server(wsHost, wsPort, wsContextRoot, null, CommunicationController.class);
         wsServer.start();
 
         final ResourceConfig rc = new ResourceConfig(AccountManagement.class);
         rc.register(AccountManagement.class);
-        rc.register(MatchingRest.class); 
-        rc.register(CorsFilter.class);   
-        
+        rc.register(MatchingRest.class);
+        rc.register(CorsFilter.class);
+
         final HttpServer restServer = GrizzlyHttpServerFactory.createHttpServer(URI.create(restUri), rc);
 
         try {
             wsServer.start();
-            System.out.println("[Management Server] Started. REST: 8082 / WS: 8080");
-            System.in.read(); 
+            System.out.println("[Management Server] Started. REST: " + restUri + " / WS: " + wsHost + ":" + wsPort
+                    + wsContextRoot);
+            System.in.read();
         } finally {
             wsServer.stop();
             restServer.shutdownNow();
