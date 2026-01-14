@@ -119,7 +119,7 @@ public class ClientCommunicater implements Runnable {
                 sendData(jsonMessage);
                 // sampleIncrement++;
                 // 5秒待機
-                Thread.sleep(5000);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 break;
