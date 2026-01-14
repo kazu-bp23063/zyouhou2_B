@@ -155,14 +155,14 @@ function updatePieceVisual(playerId, positionIndex, playerIndex) {
     if (!piece || !cell) return;
 
     // 重なり防止：プレイヤーごとに位置をずらす
-    const offsetX = (playerIndex % 2) * 18;
-    const offsetY = Math.floor(playerIndex / 2) * 18;
+    const offsetX = (playerIndex % 2) * 50;
+    const offsetY = Math.floor(playerIndex / 2) * 50;
 
     const cellRect = cell.getBoundingClientRect();
     const containerRect = document.querySelector('.board-container').getBoundingClientRect();
 
-    piece.style.left = `${(cellRect.left - containerRect.left) + offsetX + 5}px`;
-    piece.style.top = `${(cellRect.top - containerRect.top) + offsetY + 5}px`;
+    piece.style.left = `${(cellRect.left - containerRect.left) + offsetX + 45}px`;
+    piece.style.top = `${(cellRect.top - containerRect.top) + offsetY + 30}px`;
 }
 
 function handleTurnChange(nextId) {
