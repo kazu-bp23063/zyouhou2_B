@@ -1,96 +1,124 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>すごろくゲーム</title>
-    <link rel="stylesheet" href="css/game.css" />
-    <script th:inline="javascript">
-      window.GAME_CONFIG = {
-        appWsUri: /*[[${appWsUri}]]*/ "ws://localhost:8081/game-server",
-        mgmtRestBase: /*[[${mgmtRestBase}]]*/ "http://localhost:8082/api",
-      };
-    </script>
-    <script src="js/game.js" defer></script>
-  </head>
-  <body>
-    <div class="header-ui">
-      <h1 class="game-title">すごろくゲーム</h1>
-      <div class="header-controls">
-        <div class="unit-display">
-                <div class="unit-item">次にもらえる単位: <span id="expected-units">25</span></div>
-                <div class="unit-item">現在の取得単位: <span id="earned-units">0</span></div>
-          <div id="player-status-board" class="status-board"></div>
-        </div>
-        <div id="event-message">サイコロを振ってください</div>
-        <button id="status">ステータス確認</button>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>すごろくゲーム</title>
+  <link rel="stylesheet" href="css/game.css" />
+  <script th:inline="javascript">
+    window.GAME_CONFIG = {
+      appWsUri: /*[[${appWsUri}]]*/ "ws://localhost:8081/game-server",
+      mgmtRestBase: /*[[${mgmtRestBase}]]*/ "http://localhost:8082/api",
+    };
+  </script>
+  <script src="js/game.js" defer></script>
+</head>
+
+<body>
+  <div class="header-ui">
+    <h1 class="game-title">すごろくゲーム</h1>
+    <div class="header-controls">
+      <div class="rule">
+        <ul id="event">
+          <li>
+            <div id="blue"></div>2単位追加
+          </li>
+          <li>
+            <div id="red"></div>2単位減少
+          </li>
+          <li>
+            <div id="yellow"></div>1回休み
+          </li>
+          <li>
+            <div id="green"></div>アイテムが復活
+          </li>
+        </ul>
       </div>
+      <div class="unit-display">
+        <div class="unit-item">次にもらえる単位: <span id="expected-units">25</span></div>
+        <div class="unit-item">現在の取得単位: <span id="earned-units">0</span></div>
+        <div id="player-status-board" class="status-board"></div>
+      </div>
+      <div id="event-message">サイコロを振ってください</div>
+      <button id="status">ステータス確認</button>
     </div>
+  </div>
 
-    <div id="game-container">
-      <div class="board-container">
+  <div id="game-container">
+    <div class="board-container">
 
-        <div class="board-cell" id="cell-0">START</div>
-            <div class="board-cell" id="cell-1">1</div><div class="board-cell" id="cell-2">2</div>
-            <div class="board-cell" id="cell-3">3</div><div class="board-cell" id="cell-4">4</div>
-            <div class="board-cell" id="cell-5">5</div><div class="board-cell" id="cell-6">6</div>
-            <div class="board-cell" id="cell-7">7</div><div class="board-cell" id="cell-8">8</div>
-            <div class="board-cell" id="cell-9">9</div><div class="board-cell" id="cell-10">10</div>
-            <div class="board-cell" id="cell-11">11</div><div class="board-cell" id="cell-12">12</div>
-            <div class="board-cell" id="cell-13">13</div><div class="board-cell" id="cell-14">14</div>
-            <div class="board-cell" id="cell-15">15</div><div class="board-cell" id="cell-16">16</div>
-            <div class="board-cell" id="cell-17">17</div><div class="board-cell" id="cell-18">18</div>
-        <div class="board-cell" id="cell-19">19</div>
+      <div class="board-cell" id="cell-0">START</div>
+      <div class="board-cell" id="cell-1">1</div>
+      <div class="board-cell" id="cell-2">2</div>
+      <div class="board-cell" id="cell-3">3</div>
+      <div class="board-cell" id="cell-4">4</div>
+      <div class="board-cell" id="cell-5">5</div>
+      <div class="board-cell" id="cell-6">6</div>
+      <div class="board-cell" id="cell-7">7</div>
+      <div class="board-cell" id="cell-8">8</div>
+      <div class="board-cell" id="cell-9">9</div>
+      <div class="board-cell" id="cell-10">10</div>
+      <div class="board-cell" id="cell-11">11</div>
+      <div class="board-cell" id="cell-12">12</div>
+      <div class="board-cell" id="cell-13">13</div>
+      <div class="board-cell" id="cell-14">14</div>
+      <div class="board-cell" id="cell-15">15</div>
+      <div class="board-cell" id="cell-16">16</div>
+      <div class="board-cell" id="cell-17">17</div>
+      <div class="board-cell" id="cell-18">18</div>
+      <div class="board-cell" id="cell-19">19</div>
 
-        <div class="board-center-ui">
-          <div class="ui-content-wrapper">
-            <div id="dice-result-text">
-              <p>結果：<span>-</span></p>
-            </div>
-            <div class="action-section">
-              <button type="button" id="diceStart">ダイスを振る</button>
-            </div>
+      <div class="board-center-ui">
+        <div class="ui-content-wrapper">
+          <div id="dice-result-text">
+            <p>結果：<span>-</span></p>
+          </div>
+          <div class="action-section">
+            <button type="button" id="diceStart">ダイスを振る</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div id="statusModal" class="modal">
-      <div class="modal-content">
-        <span id="closeModal" class="close-btn">&times;</span>
-        <h2>プレイヤー情報</h2>
-        <table style="width: 100%;">
-          <tr>
-            <td>現在の場所</td>
-            <td><span id="modal-pos">0</span>番目</td>
-          </tr>
-          <tr>
-            <td>累計取得単位</td>
-            <td><span id="modal-earned">0</span></td>
-          </tr>
-          <tr>
-            <td>次回の報酬</td>
-            <td><span id="modal-expected">25</span></td>
-          </tr>
-        </table>
-     <hr>
-        <h3>アイテム使用</h3>
-<button type="button" id="btn-double" class="item-btn" onclick="selectItem('DOUBLE')">ダブルダイス</button>
+  <div id="statusModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close-btn">&times;</span>
+      <h2>プレイヤー情報</h2>
+      <table style="width: 100%;">
+        <tr>
+          <td>現在の場所</td>
+          <td><span id="modal-pos">0</span>番目</td>
+        </tr>
+        <tr>
+          <td>累計取得単位</td>
+          <td><span id="modal-earned">0</span></td>
+        </tr>
+        <tr>
+          <td>次回の報酬</td>
+          <td><span id="modal-expected">25</span></td>
+        </tr>
+      </table>
+      <hr>
+      <h3>アイテム使用</h3>
+      <button type="button" id="btn-double" class="item-btn" onclick="selectItem('DOUBLE')">ダブルダイス</button>
 
-        <div class="just-item-section">
-          <p>ジャストダイス（出したい目を選択）</p>
-          <div class="number-buttons" id="btn-just-container">
-        <button type="button" class="num-btn" onclick="selectJust(1)">1</button>
-        <button type="button" class="num-btn" onclick="selectJust(2)">2</button>
-        <button type="button" class="num-btn" onclick="selectJust(3)">3</button>
-        <button type="button" class="num-btn" onclick="selectJust(4)">4</button>
-        <button type="button" class="num-btn" onclick="selectJust(5)">5</button>
-        <button type="button" class="num-btn" onclick="selectJust(6)">6</button>
-          </div>
+      <div class="just-item-section">
+        <p>ジャストダイス（出したい目を選択）</p>
+        <div class="number-buttons" id="btn-just-container">
+          <button type="button" class="num-btn" onclick="selectJust(1)">1</button>
+          <button type="button" class="num-btn" onclick="selectJust(2)">2</button>
+          <button type="button" class="num-btn" onclick="selectJust(3)">3</button>
+          <button type="button" class="num-btn" onclick="selectJust(4)">4</button>
+          <button type="button" class="num-btn" onclick="selectJust(5)">5</button>
+          <button type="button" class="num-btn" onclick="selectJust(6)">6</button>
         </div>
-        <p id="selected-item-display">使用予定: なし</p>
-        <p id="item-warning-msg" style="color: red; font-size: 0.8rem; font-weight: bold;"></p>
       </div>
+      <p id="selected-item-display">使用予定: なし</p>
+      <p id="item-warning-msg" style="color: red; font-size: 0.8rem; font-weight: bold;"></p>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
