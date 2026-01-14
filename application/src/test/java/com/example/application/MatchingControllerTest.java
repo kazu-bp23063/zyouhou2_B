@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 class MatchingControllerTest {
 
-    // RoomManagerのモック（偽物）を作成
+    // RoomManagerのモックを作成
     @Mock
     private RoomManager roomManager;
 
@@ -33,9 +33,8 @@ class MatchingControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    /**
-     * ケース1: 空き部屋がない場合
-     * -> 新しい部屋が作成され、そこにプレイヤー(赤色)が追加されることを確認
+    /* ケース1: 空き部屋がない場合
+      新しい部屋が作成され、そこにプレイヤー(赤色)が追加されることを確認
      */
     @Test
     void testAutoJoin_CreatesNewRoom_WhenNoAvailableRoom() {
@@ -66,9 +65,9 @@ class MatchingControllerTest {
         assertEquals(1, ((Room)body.get("room")).getPlayers().size());
     }
 
-    /**
-     * ケース2: 空き部屋がある場合
-     * -> 既存の部屋にプレイヤー(青色など)が追加され、createRoomは呼ばれないことを確認
+    /*
+      ケース2: 空き部屋がある場合
+      -> 既存の部屋にプレイヤー(青色など)が追加され、createRoomは呼ばれないことを確認
      */
     @Test
     void testAutoJoin_JoinsExistingRoom() {
@@ -91,8 +90,8 @@ class MatchingControllerTest {
         assertEquals("#4d94ff", me.getColor()); // 2人目なので青色（colorsリストの1番目）
     }
 
-    /**
-     * ケース3: ステータス取得（部屋が存在する場合）
+    /*
+      ケース3: ステータス取得（部屋が存在する場合）
      */
     @Test
     void testGetStatus_Found() {
@@ -106,8 +105,8 @@ class MatchingControllerTest {
         assertEquals(room, response.getBody());
     }
 
-    /**
-     * ケース4: ステータス取得（部屋が存在しない場合）
+    /*
+      ケース4: ステータス取得（部屋が存在しない場合）
      */
     @Test
     void testGetStatus_NotFound() {

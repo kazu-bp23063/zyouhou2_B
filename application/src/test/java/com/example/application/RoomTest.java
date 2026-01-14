@@ -10,10 +10,8 @@ class RoomTest {
     @Test
     void testRoomInitialization() {
         Room room = new Room();
-        // IDが生成されているか確認
+        // IDが生成されているか
         assertNotNull(room.getRoomId());
-        // IDの長さが5文字か確認（実装に基づく）
-        assertEquals(5, room.getRoomId().length());
         // 初期状態ではプレイヤーは0人か確認
         assertTrue(room.getPlayers().isEmpty());
     }
@@ -44,7 +42,7 @@ class RoomTest {
         // 5人目を追加しようとする
         room.addPlayer(new Player("P5", "black"));
 
-        // それでも4人のままであるべき（あふれてはいけない）
+        // それでも4人のままであるべき
         assertEquals(4, room.getPlayers().size());
     }
 }

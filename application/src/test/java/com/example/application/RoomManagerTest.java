@@ -44,7 +44,7 @@ class RoomManagerTest {
 
     @Test
     void testFindAvailableRoom() {
-        // 1. 部屋を作る（初期状態なら人数は0人のはずなので、空き部屋として見つかるはず）
+        // 1. 部屋を作る
         roomManager.createRoom();
 
         // 2. 空き部屋を探す
