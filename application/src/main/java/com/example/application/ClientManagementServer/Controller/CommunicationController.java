@@ -17,7 +17,7 @@ public class CommunicationController {
     @OnMessage
     public void onMessage(String json, Session session) {
         // 管理サーバーが担当するタスクのみを処理
-        if (json.contains("LOGIN") || json.contains("REGISTER") || json.contains("MATCHING") || json.contains("LOGOUT")) {
+        if (json.contains("LOGIN") || json.contains("REGISTER") || json.contains("MATCHING") || json.contains("MATCHING_CANCEL") || json.contains("LOGOUT")) {
             authController.processClientMessage(json, session);
             System.out.println("[Communication] 管理サーバーでゲームメッセージを処理しました。");
         } else {

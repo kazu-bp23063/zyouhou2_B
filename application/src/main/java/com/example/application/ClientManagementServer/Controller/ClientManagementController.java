@@ -36,6 +36,10 @@ public class ClientManagementController {
                 // マッチング待機リストへ追加
                 matchingManagement.addUserToWaitList(session, msg.getUserName(), msg.getUserId());
             }
+            case "MATCHING_CANCEL" -> {
+                // マッチング待機リストから削除
+                matchingManagement.removeUserFromWaitList(msg.getUserId());
+            }
         }
     }
 

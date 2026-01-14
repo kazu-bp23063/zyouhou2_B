@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <a th:href="@{/start}" class="cancel-btn">キャンセル</a>
+      <button type="button" class="cancel-btn" id="cancelBtn">キャンセル</button>
     </div>
     <script th:inline="javascript">
       const loginName = /*[[${session.loginName}]]*/ "Guest";
@@ -74,6 +74,14 @@
           }
         }
       }
+
+      // キャンセルボタンの処理
+      document.getElementById('cancelBtn').addEventListener('click', () => {
+        const cancelMsg = { taskName: "MATCHING_CANCEL", userId: loginName };
+        socket.send(JSON.stringify(cancelMsg));
+        socket.close();
+        window.location.href = '/start';
+      });
     </script>
   </body>
 </html>
