@@ -11,8 +11,6 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.Session;
 
-// ゲームの大部分を担当するコントローラクラス(WebSocket経由)
-// ブラウザと常に接続し続ける双方向通信を担当するEndpointクラスから呼び出される
 public class GameManagementController {
     private final Gson gson = new Gson();
     private final DiceController diceController = new DiceController();
@@ -31,12 +29,17 @@ public class GameManagementController {
         if (playerId != null) {
             SessionManager.userSessions.put(playerId, session);
             resetAFKCount(roomId, playerId);
-            System.out.println("[Game] Session registered for: " + playerId);
         }
+
+        System.out.println("[Game] Message received: " + taskName + " / Player: " + playerId + " / Room: " + roomId);
 
         switch (taskName) {
             case "GAME_JOIN" -> {
                 RoomManager rm = getRoomManager();
+                if (rm == null) {
+                    System.out.println("[Game] Error: RoomManager is null.");
+                    return;
+                }
                 Room room = rm.getRoom(roomId);
                 if (room != null) {
                     boolean exists = room.getPlayers().stream().anyMatch(p -> p.getId().equals(playerId));
@@ -44,9 +47,12 @@ public class GameManagementController {
                         Player newPlayer = new Player(playerId, "red");
                         newPlayer.setId(playerId);
                         room.getPlayers().add(newPlayer);
-                        System.out.println("[Game] 部屋 " + roomId + " にプレイヤー " + playerId + " を追加しました。現在: "
-                                + room.getPlayers().size() + "人");
+                        System.out.println("[Game] JOIN処理: 部屋 " + roomId + " にプレイヤー " + playerId + " を追加しました。(現在: " + room.getPlayers().size() + "人)");
+                    } else {
+                        System.out.println("[Game] JOIN処理: プレイヤー " + playerId + " は既に参加済みです。");
                     }
+                } else {
+                    System.out.println("[Game] JOINエラー: 部屋 " + roomId + " が見つかりません。");
                 }
             }
             case "GAME_ROLL" -> handleRoll(msg);
@@ -61,23 +67,34 @@ public class GameManagementController {
         Integer targetValue = targetValDouble != null ? targetValDouble.intValue() : null;
 
         RoomManager rm = getRoomManager();
-        if (rm == null) {
-            System.out.println("[Game] RoomManager が null です。");
-            return;
-        }
-
+        if (rm == null) return;
         Room room = rm.getRoom(roomId);
+        
         if (room == null) {
-            System.out.println("[Game] 部屋が見つかりません: " + roomId);
+            System.out.println("[Game] Rollエラー: 部屋が見つかりません ID=" + roomId);
             return;
         }
 
-        System.out.println("[Game] 部屋を発見しました。ダイス処理を開始します。");
+        // ★修正点: プレイヤーリストが空の場合の防御
+        if (room.getPlayers().isEmpty()) {
+            System.out.println("[Game] Rollエラー: 部屋 " + roomId + " のプレイヤーリストが空です。");
+            return; // ここでリターンすることでクラッシュを防ぐ
+        }
 
         int currentTurnIndex = room.getTurnIndex();
+        
+        // ★修正点: インデックス範囲外の防御
+        if (currentTurnIndex < 0 || currentTurnIndex >= room.getPlayers().size()) {
+            System.out.println("[Game] Rollエラー: turnIndex (" + currentTurnIndex + ") が不正です。プレイヤー人数: " + room.getPlayers().size());
+            // 強制的に0に戻すなどの復旧処理
+            room.setTurnIndex(0);
+            currentTurnIndex = 0;
+        }
+
         Player currentPlayer = room.getPlayers().get(currentTurnIndex);
 
         if (!currentPlayer.getId().equals(playerId)) {
+            // 順番補正ロジック
             int idx = -1;
             for (int i = 0; i < room.getPlayers().size(); i++) {
                 if (room.getPlayers().get(i).getId().equals(playerId)) {
@@ -111,8 +128,6 @@ public class GameManagementController {
             response.put("nextPlayerId", nextPlayer.getId());
             response.put("isGraduated", false);
             response.put("message", playerId + " は一回休みです。");
-
-            // アイテム状態も返す
             response.put("usedDouble", currentPlayer.isUsedDouble());
             response.put("usedJust", currentPlayer.isUsedJust());
 
@@ -121,23 +136,17 @@ public class GameManagementController {
         }
 
         if (!currentPlayer.getId().equals(playerId)) {
-            System.out.println("[Game] 却下: " + playerId + " の番ではありません。現在の手番: " + currentPlayer.getId());
+            System.out.println("[Game] 却下: " + playerId + " の番ではありません。現在の手番ID: " + currentPlayer.getId());
             return;
         }
 
         // --- アイテム使用チェック ---
         if ("DOUBLE".equals(itemType)) {
-            if (currentPlayer.isUsedDouble()) {
-                System.out.println("[Game] 却下: " + playerId + " は既にダブルダイスを使用しています。");
-                return;
-            }
-            currentPlayer.setUsedDouble(true); // 使用済みに更新
+            if (currentPlayer.isUsedDouble()) return;
+            currentPlayer.setUsedDouble(true);
         } else if ("JUST".equals(itemType)) {
-            if (currentPlayer.isUsedJust()) {
-                System.out.println("[Game] 却下: " + playerId + " は既にジャストダイスを使用しています。");
-                return;
-            }
-            currentPlayer.setUsedJust(true); // 使用済みに更新
+            if (currentPlayer.isUsedJust()) return;
+            currentPlayer.setUsedJust(true);
         }
 
         // ダイス実行
@@ -157,24 +166,19 @@ public class GameManagementController {
 
         GameEvent event = gameMap.getGameEvent(newPos);
         if (event != null) {
-            System.out.println("[Event発生] プレイヤー: " + playerId + " | マス: " + newPos + " | 内容: " + event.getEventContent());
-
+            System.out.println("[Event] プレイヤー: " + playerId + " / マス: " + newPos + " / " + event.getEventContent());
             int currentExpected = currentPlayer.getExpectedUnits();
             int adjustment = event.getCreditAdjustmentValue();
             currentPlayer.setExpectedUnits(currentExpected + adjustment);
 
-            System.out.println("[Event適用] 予定単位が更新されました: " + currentExpected + " -> " + currentPlayer.getExpectedUnits());
-
             if (event.getEventEffect() == GameEvent.EFFECT_SKIP) {
-                System.out.println("[Event効果] " + playerId + " は次の一回休みが適用されます。");
                 currentPlayer.setSkipped(true);
                 currentPlayer.setExpectedUnits(currentExpected + adjustment);
             }
             else if (event.getEventEffect() == GameEvent.EFFECT_RECOVERY) {
-            System.out.println("[Event効果] " + playerId + " のアイテム使用制限をリセットします。");
-            currentPlayer.setUsedDouble(false);
-            currentPlayer.setUsedJust(false);
-        }
+                currentPlayer.setUsedDouble(false);
+                currentPlayer.setUsedJust(false);
+            }
         }
 
         // ターン送り
@@ -194,12 +198,9 @@ public class GameManagementController {
         response.put("expectedUnits", currentPlayer.getExpectedUnits());
         response.put("nextPlayerId", nextPlayer.getId());
         response.put("isGraduated", isGraduated);
-
-        // アイテム使用状況を返す
         response.put("usedDouble", currentPlayer.isUsedDouble());
         response.put("usedJust", currentPlayer.isUsedJust());
 
-        System.out.println("[Game] 計算完了。ブラウザへ結果を送信します。");
         broadcastToRoom(room, response);
 
         if (isGraduated) {
@@ -210,13 +211,14 @@ public class GameManagementController {
     private void resetAFKCount(String roomId, String playerId) {
         if (roomId == null) return;
         RoomManager rm = getRoomManager();
-        if (rm == null) return;
-        Room room = rm.getRoom(roomId);
-        if (room != null) {
-            room.getPlayers().stream()
-                    .filter(p -> p.getId().equals(playerId))
-                    .findFirst()
-                    .ifPresent(p -> p.setAfkCount(0));
+        if (rm != null) {
+            Room room = rm.getRoom(roomId);
+            if (room != null && !room.getPlayers().isEmpty()) {
+                room.getPlayers().stream()
+                        .filter(p -> p.getId().equals(playerId))
+                        .findFirst()
+                        .ifPresent(p -> p.setAfkCount(0));
+            }
         }
     }
 

@@ -1,5 +1,9 @@
 package com.example.application.ClientManagementServer.Controller;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -47,61 +51,71 @@ public class MatchingManagement {
     private void createUnifiedRoom(List<PlayerEntry> group) {
         String roomId = Integer.toHexString(new Random().nextInt(0x10000)).toUpperCase();
         LocalRoom room = new LocalRoom(roomId);
-        sendRoomToAppServer(room); // アプリサーバへ部屋情報を送信
 
-    
-
+        // 先にプレイヤーリストを作成して追加する
         String[] colors = {"#ff4d4d", "#4d94ff", "#4dff88", "#ffdb4d"};
         for (int i = 0; i < group.size(); i++) {
             PlayerEntry entry = group.get(i);
             LocalPlayer p = new LocalPlayer(entry.userId, entry.userName, colors[i], 0, 0, 25);
             room.players.add(p);
         }
-        activeRooms.put(roomId, room);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("taskName", "MATCH_FOUND");
-        response.put("roomId", roomId);
+        // AppServerへの送信を行い、成功を確認してからクライアントへ通知する
+        boolean success = sendRoomToAppServerSync(room);
 
-        String json = gson.toJson(response);
-        for (PlayerEntry player : group) {
-            sendMessage(player.session, json);
+        if (success) {
+            activeRooms.put(roomId, room);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("taskName", "MATCH_FOUND");
+            response.put("roomId", roomId);
+
+            String json = gson.toJson(response);
+            for (PlayerEntry player : group) {
+                sendMessage(player.session, json);
+            }
+            System.out.println("[Matching] Match Success! RoomID: " + roomId + " (AppServer同期済み)");
+        } else {
+            System.out.println("[Matching] エラー: AppServerへの部屋登録に失敗したため、マッチングをキャンセルします。");
+            // エラー時はユーザーをリストに戻すなどの処理が必要ですが、ひとまずログ出力のみ
         }
-        System.out.println("[Matching] Match Success! RoomID: " + roomId);
     }
 
-    private void sendRoomToAppServer(LocalRoom room) {
+    // 同期的に送信し、結果を確認するメソッド
+    private boolean sendRoomToAppServerSync(LocalRoom room) {
         try {
-            String appBase = "http://172.31.108.165:8081/api";
+            String appBase = "http://172.31.108.165:8081/api"; 
             String appServerUrl = appBase + "/matching/register-room";
+            
             System.out.println("[Management] Sending room info to App Server at " + appServerUrl);
 
-            // HttpClient または RestTemplate を使って送信
-            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
-            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                    .uri(java.net.URI.create(appServerUrl))
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(appServerUrl))
                     .header("Content-Type", "application/json")
-                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(gson.toJson(room)))
+                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(room)))
                     .build();
 
-            client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-            System.out.println("[Management] アプリサーバーへ部屋情報を送信しました。");
+            // sendAsyncではなくsendを使って完了を待つ
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 200) {
+                System.out.println("[Management] アプリサーバーへの登録成功: " + response.body());
+                return true;
+            } else {
+                System.out.println("[Management] アプリサーバーへの登録失敗: Status=" + response.statusCode() + " Body=" + response.body());
+                return false;
+            }
+
         } catch (Exception e) {
-            System.out.println("[Management] アプリサーバーへの送信に失敗: " + e.getMessage());
+            System.out.println("[Management] アプリサーバーへの送信例外: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
-    private String getProp(String key, String def) {
-        String env = System.getenv(key.toUpperCase().replace('.', '_').replace('-', '_'));
-        if (env != null && !env.isBlank())
-            return env;
-        String sys = System.getProperty(key);
-        if (sys != null && !sys.isBlank())
-            return sys;
-        return def;
-    }
-
-    public LocalRoom getRoomById(String roomId) {
+    // ★修正箇所: static を追加しました
+    public static LocalRoom getRoomById(String roomId) {
         return activeRooms.get(roomId);
     }
 
