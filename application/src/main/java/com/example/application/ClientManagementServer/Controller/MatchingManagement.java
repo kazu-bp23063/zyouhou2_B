@@ -84,11 +84,7 @@ public class MatchingManagement {
     // 同期的に送信し、結果を確認するメソッド
     private boolean sendRoomToAppServerSync(LocalRoom room) {
         try {
-<<<<<<< HEAD
-            String appBase = "http://172.31.108.165:8081/api";
-=======
             String appBase = "http://172.31.108.165:8081/api"; 
->>>>>>> 53a224e36d25d51e0109d719ac5b5937d1feb619
             String appServerUrl = appBase + "/matching/register-room";
             
             System.out.println("[Management] Sending room info to App Server at " + appServerUrl);
