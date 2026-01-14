@@ -275,6 +275,46 @@ body {
     border-bottom: 3px solid #f1c40f; /* 手番のプレイヤーを強調 */
 }
 
+#blue{
+    width: 15px;
+    height: 15px;
+    background-color: blue;
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+#red{
+    width: 15px;
+    height: 15px;
+    background-color: red;
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+#yellow{
+    width: 15px;
+    height: 15px;
+    background-color: yellow;
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+#green{
+    width: 15px;
+    height: 15px;
+    background-color: rgb(36, 254, 36);
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+#event{
+    list-style: none;
+    padding: 0;
+    font-size: 9px;
+}
 .status-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 3px; }
 .status-units { font-size: 0.8rem; color: #555; }
 .status-units span { font-weight: bold; color: #2c3e50; }
