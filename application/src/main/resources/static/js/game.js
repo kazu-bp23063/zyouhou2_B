@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 4. サーバーからの更新通知を処理 ---
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log("--- 受信データ ---", data);
 
         if (data.taskName === "GAME_UPDATE") {
             // ① メッセージと出目の表示

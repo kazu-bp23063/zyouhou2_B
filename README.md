@@ -15,6 +15,7 @@ REST API: http://IPアドレス:8081
 - `application/src/main/resources/application.properties`
   - `client.management.rest.base` (例: `http://<管理サーバIP>:8082`)
   - `client.management.ws.uri`   (例: `ws://<管理サーバIP>:8080/app/matching`)
+  - `app.server.remote`   (例: `http://<アプリサーバIP>:8081`)
   - `app.server.rest.base`       (例: `http://<アプリサーバIP>:8081/api`)
   - `app.server.ws.uri`          (例: `ws://<アプリサーバIP>:8081/game-server`)
 - `application/src/main/java/com/example/application/ClientManagementServer/Controller/MatchingManagement.java`
