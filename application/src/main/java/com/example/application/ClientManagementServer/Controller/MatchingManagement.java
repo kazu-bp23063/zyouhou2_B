@@ -29,7 +29,8 @@ public class MatchingManagement {
     private final Gson gson = new Gson();
 
     public synchronized void addUserToWaitList(Session session, String userName, String userId) {
-        if (userName == null || userName.isEmpty()) return;
+        if (userName == null || userName.isEmpty())
+            return;
 
         boolean exists = matchingWaitList.stream().anyMatch(p -> p.userId.equals(userId));
         if (!exists) {
@@ -41,9 +42,21 @@ public class MatchingManagement {
         // 4人揃ったらマッチング成立
         if (matchingWaitList.size() >= 4) {
             List<PlayerEntry> group = new ArrayList<>();
-            for (int i = 0; i < 4; i++) group.add(matchingWaitList.removeFirst());
+            for (int i = 0; i < 4; i++)
+                group.add(matchingWaitList.removeFirst());
             createUnifiedRoom(group);
         } else {
+            broadcastWaitStatus();
+        }
+    }
+
+    public synchronized void removeUserFromWaitList(String userId) {
+        if (userId == null || userId.isEmpty())
+            return;
+
+        boolean removed = matchingWaitList.removeIf(p -> p.userId.equals(userId));
+        if (removed) {
+            System.out.println("[Matching] Player " + userId + " cancelled. size: " + matchingWaitList.size());
             broadcastWaitStatus();
         }
     }
@@ -53,7 +66,7 @@ public class MatchingManagement {
         LocalRoom room = new LocalRoom(roomId);
 
         // 先にプレイヤーリストを作成して追加する
-        String[] colors = {"#ff4d4d", "#4d94ff", "#4dff88", "#ffdb4d"};
+        String[] colors = { "#ff4d4d", "#4d94ff", "#4dff88", "#ffdb4d" };
         for (int i = 0; i < group.size(); i++) {
             PlayerEntry entry = group.get(i);
             LocalPlayer p = new LocalPlayer(entry.userId, entry.userName, colors[i], 0, 0, 25);
@@ -86,7 +99,7 @@ public class MatchingManagement {
         try {
             String appBase = "http://172.31.108.165:8081/api"; 
             String appServerUrl = appBase + "/matching/register-room";
-            
+
             System.out.println("[Management] Sending room info to App Server at " + appServerUrl);
 
             HttpClient client = HttpClient.newHttpClient();
@@ -98,12 +111,13 @@ public class MatchingManagement {
 
             // sendAsyncではなくsendを使って完了を待つ
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() == 200) {
                 System.out.println("[Management] アプリサーバーへの登録成功: " + response.body());
                 return true;
             } else {
-                System.out.println("[Management] アプリサーバーへの登録失敗: Status=" + response.statusCode() + " Body=" + response.body());
+                System.out.println(
+                        "[Management] アプリサーバーへの登録失敗: Status=" + response.statusCode() + " Body=" + response.body());
                 return false;
             }
 
@@ -131,8 +145,12 @@ public class MatchingManagement {
     }
 
     private void sendMessage(Session session, String text) {
-        try { if (session.isOpen()) session.getBasicRemote().sendText(text); } 
-        catch (Exception e) { e.printStackTrace(); }
+        try {
+            if (session.isOpen())
+                session.getBasicRemote().sendText(text);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @AllArgsConstructor
@@ -147,7 +165,10 @@ public class MatchingManagement {
         private String roomId;
         private List<LocalPlayer> players = new ArrayList<>();
         private int turnIndex = 0;
-        public LocalRoom(String id) { this.roomId = id; }
+
+        public LocalRoom(String id) {
+            this.roomId = id;
+        }
     }
 
     @Data
